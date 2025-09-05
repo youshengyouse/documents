@@ -1,0 +1,390 @@
+---
+title: 安装tailwindcss
+---
+
+## 安装tailwindcss
+
+将这个放在第02课里，这课注册表单
+
+- 参考官方文档：https://tailwindcss.com/docs/installation/using-vite
+
+```bash filename="安装包" switcher
+# 当前目录 /www2024/4_tutorial/laravel/vue_and_laravel/frontend-vue
+pnpm add tailwindcss @tailwindcss/vite
+```
+
+```ts filename="vite.config.ts" switcher
+import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite' //[!code ++]
+export default defineConfig({
+  plugins: [tailwindcss()], //[!code ++]
+})
+```
+
+```css filename="src/assets/main.css" switcher
+@import './base.css';
+@import 'tailwindcss'; /*[!code ++]*/
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+```
+
+```html filename="快捷键" switcher
+Alt+Shift+i Alt + 点击：在指定位置直接添加光标。 Ctrl+D（Windows/Linux）或
+Cmd+D（Mac）：选中下一个相同的文本并添加光标。
+Ctrl+Alt+↑/↓（Windows/Linux）或Cmd+Opt+↑/↓（Mac）：在当前行的上方或下方添加光标。
+如果你需要快速为选中内容添加标签，结合 Alt+Shift+I 和 Emmet（如 div> 后按
+Tab）会更高效。例如： 选中内容，按 Alt+Shift+I 在末尾添加光标。 按 home移到行首
+按 ↑ 移动到行首，输入
+<div>。 按 Tab 跳到闭合标签位置，输入</div>
+。 /C:/Users/qianjin/AppData/Roaming/Trae/User/keybindings.json [ { "key":
+"ctrl+shift+i", "command": "extension.wrapTag", "when": "editorTextFocus" } ]
+```
+
+```json filename="选中内容外包标签" switcher
+//安装插件 html tag wrapper
+//修改文件：/C:/Users/qianjin/AppData/Roaming/Trae/User/keybindings.json
+[
+  {
+    "key": "ctrl+shift+i",
+    "command": "extension.wrapTag",
+    "when": "editorTextFocus"
+  }
+]
+```
+
+```vue filename="src/App.vue(从零手写)" switcher
+熟悉快捷键 vbase
+<template>
+  <header>
+    <div class="bg-slate-700">
+      <nav class=" container mx-auto flex justify-between p-4 text-slate-200">
+        <RouterLink to="/">首页</RouterLink>
+        <div class=" space-x-4">
+          <RouterLink to="/login">登录</RouterLink>
+          <RouterLink to="/register">注册</RouterLink>
+          <RouterLink to="/dashboard">仪表盘</RouterLink>
+        </div>
+      </nav>
+    </div>
+  </header>
+  <main class="bg-slate-300 min-h-screen flex justify-center items-center">
+    <RouterView />
+  </main>
+</template>
+
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router'
+</script>
+
+<style lang="scss" scoped></style>
+```
+
+## 重写Register页面
+
+- [x] 拷贝`https://flowbite.com/`代码重写注册页面，tailwindcss自定义样式类名
+- [x] 将axios部分单独提取到 `@/lib/axios.ts` 中
+- [x] 前端和后端域名分别为 frontend.vue和backend.laravel(前端配置axios,后端),由于前后端域名不一样，会报419错误，这时需要一个代理，参考https://www.youtube.com/watch?v=gKC7yvllsPE 4:45,原因是laravel后台向浏览器写入cookie的domain是后端的，前端的域名与后端不一样，是无法读取后端的cookie的。这个问题困扰了我很久很久
+- [x] 如何全局配置axios和单独配置某个请求
+- [x] 表单数据接口定义，表单数数据定义，绑定，提交、验证、错误处理
+- [x] @submit.prevent="函数名还是匿名函数"
+- [x] 后台 `php artisan migrate:fresh` 清空所有数据
+
+```vue filename="src/views/RegisterView.vue" switcher
+https://flowbite.com/docs/components/forms/
+拷贝到注册RegisterView.vue中，并稍做修改
+```
+
+```ts filename="vite.config.ts" switcher
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig, loadEnv } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import tailwindcss from '@tailwindcss/vite'
+
+const env = loadEnv('development', process.cwd(), '')
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()],
+  server: {
+    port: 7000,
+    host: 'frontend.vue',
+    proxy: {
+      '/api': {
+        target: env.VITE_BACKEND_URL_API,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/sanctum/csrf-cookie': {
+        target: env.VITE_BACKEND_URL_BASE + 'sanctum/csrf-cookie',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sanctum\/csrf-cookie/, ''),
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+})
+```
+
+```ts filename="RegisterView.vue" switcher
+<script setup lang="ts">
+import axiosInstance from '@/lib/axios';
+import { reactive } from 'vue';
+// 定义接口
+interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+// 方式1：在 reactive 泛型参数中指定类型
+const formData = reactive<RegisterForm>({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+})
+
+// 方式2：在变量声明时直接指定类型,不推荐
+// const formData: RegisterForm = reactive({
+//   name: '',
+//   email: '',
+//   password: '',
+//   password_confirmation: ''
+// })
+
+
+// 主要区别
+// 类型推导的方向：
+// 方式 1：从泛型参数 RegisterForm 推导初始对象的类型
+// 方式 2：从初始对象推导 RegisterForm 接口的具体实现
+// 类型检查的严格程度：
+// 方式 1：TypeScript 会强制要求初始对象必须完全符合 RegisterForm 接口的定义，否则会报错
+// 方式 2：TypeScript 会检查初始对象是否能被赋值给 RegisterForm，但允许有额外属性（如果 RegisterForm 不是密封接口）
+// 类型兼容性：
+// 方式 1：如果初始对象缺少接口中的属性，TypeScript 会立即报错
+// 方式 2：如果初始对象缺少接口中的属性，TypeScript 可能不会报错（取决于接口定义是否允许可选属性）
+
+
+const register = async (payload) => {
+  console.log('注册中...')
+  await axiosInstance.get('http://frontend.vue:7000/sanctum/csrf-cookie', {
+    baseURL: import.meta.env.VITE_BACKEND_URL_BASE
+  })
+  try {
+    const result = await axiosInstance.post('register', payload    );
+    console.log('axios请求的结果:', result);
+  }
+  catch (e) {
+    console.log('错误', e);
+    console.log('错误详情', e.response.data);
+
+  }
+}
+//  @submit.prevent="() => {    console.log(formData)  }"
+//  @submit.prevent="console.log(formData)"
+// @submit.prevent="() => {    register(formData)  }"
+// @submit.prevent="register(formData)"
+
+// 空提交时，会报422错误，在response中会报错
+// {
+//     "message": "The name field is required. (and 2 more errors)",
+//     "errors": {
+//         "name": [
+//             "The name field is required."
+//         ],
+//         "email": [
+//             "The email field is required."
+//         ],
+//         "password": [
+//             "The password field is required."
+//         ]
+//     }
+// }
+// 数据符合要求时会报201,response中“”
+</script>
+<template>
+  <form class="max-w-5xl min-w-sm p-5 bg-slate-400 rounded" @submit.prevent="() =>   register(formData)  ">
+    <div class="mb-5">
+      <label for="name" class="form-label">用户名</label>
+      <input type="name" id="name" class="form-input" placeholder="请输入用户名" v-model="formData.name" />
+    </div>
+    <div class="mb-5">
+      <label for="email" class="form-label">邮箱</label>
+      <input type="email" id="email" class="form-input" placeholder="name@flowbite.com" v-model="formData.email" />
+    </div>
+    <div class="mb-5">
+      <label for="password" class="form-label">密码</label>
+      <input type="password" id="password" class="form-input" v-model="formData.password" />
+    </div>
+    <div class="mb-5">
+      <label for="password_confirmation" class="form-label">密码确认</label>
+      <input type="password" id="password_confirmation" class="form-input" v-model="formData.password_confirmation" />
+    </div>
+    <button type="submit" class="form-button">注册</button>
+  </form>
+</template>
+<style scoped></style>
+```
+
+```php filename="修改注册响应" switcher
+// src/Http/Responses/RegisterResponse.php,在src/FortifyServiceProvider.php中注册的注册响应类
+// 重写注册响应,修改 Providers/FortifyServiceProvider.php,一个是包服务提供者，一个是应用服务提供者，如果两个服务提供者注册的服务名一样，以应用服务提供者为准
+// app/Providers/FortifyServiceProvider.php
+// 匿名类的写法
+    public function register(): void
+    {
+        $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
+            public function toResponse($request): JsonResponse
+            {
+                return response()->json(['status' => "success", "message" => "用户创建成功"], 201);
+            }
+        });
+    }
+```
+
+## 错误处理
+
+```vue
+<script setup lang="ts">
+import axiosInstance from '@/lib/axios'
+import { AxiosError } from 'axios'
+import { reactive } from 'vue'
+
+// 定义接口
+interface RegisterForm {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+// 方式1：在 reactive 泛型参数中指定类型
+const formData = reactive<RegisterForm>({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+})
+
+const formErrors = reactive({
+  name: [],
+  email: [],
+  password: [],
+})
+
+const register = async (payload: RegisterForm) => {
+  console.log('注册中...')
+  await axiosInstance.get('http://frontend.vue:7000/sanctum/csrf-cookie', {
+    baseURL: import.meta.env.VITE_BACKEND_URL_BASE,
+  })
+  try {
+    const result = await axiosInstance.post('register', payload, {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+    console.log('axios请求的结果:', result)
+  } catch (e) {
+    if (e instanceof AxiosError && e.response?.status === 422) {
+      formErrors.name = e.response.data.errors.name
+      formErrors.email = e.response.data.errors.email
+      formErrors.password = e.response.data.errors.password
+    }
+  }
+}
+</script>
+<template>
+  <form
+    class="max-w-5xl min-w-sm p-5 bg-slate-400 rounded"
+    @submit.prevent="() => register(formData)"
+  >
+    <div class="mb-5">
+      <label for="name" class="form-label">用户名</label>
+      <input
+        type="name"
+        id="name"
+        class="form-input"
+        placeholder="请输入用户名"
+        v-model="formData.name"
+      />
+      <template v-if="formErrors.name?.length">
+        <div
+          v-for="error in formErrors.name"
+          :key="error"
+          class="text-red-500 mb-5"
+        >
+          {{ error }}
+        </div>
+      </template>
+    </div>
+
+    <div class="mb-5">
+      <label for="email" class="form-label">邮箱</label>
+      <input
+        type="email"
+        id="email"
+        class="form-input"
+        placeholder="name@flowbite.com"
+        v-model="formData.email"
+      />
+      <template v-if="formErrors.email?.length">
+        <div
+          v-for="error in formErrors.email"
+          :key="error"
+          class="text-red-500 mb-5"
+        >
+          {{ error }}
+        </div>
+      </template>
+    </div>
+
+    <div class="mb-5">
+      <label for="password" class="form-label">密码</label>
+      <input
+        type="password"
+        id="password"
+        class="form-input"
+        v-model="formData.password"
+      />
+      <template v-if="formErrors.password?.length">
+        <div
+          v-for="error in formErrors.password"
+          :key="error"
+          class="text-red-500 mb-5"
+        >
+          {{ error }}
+        </div>
+      </template>
+    </div>
+
+    <div class="mb-5">
+      <label for="password_confirmation" class="form-label">密码确认</label>
+      <input
+        type="password"
+        id="password_confirmation"
+        class="form-input"
+        v-model="formData.password_confirmation"
+      />
+    </div>
+
+    <button type="submit" class="form-button">注册</button>
+  </form>
+</template>
+<style scoped></style>
+```
+
+## 填坑
+
+当注册成功后，会自动登录状态，此时，再注册会报302重定向错误，原因是后端已经登录了，所以会重定向到首页，先不用管，后续课程处理
+
+<Image src="/vue_and_laravel/6.png" width={600} height={400} />

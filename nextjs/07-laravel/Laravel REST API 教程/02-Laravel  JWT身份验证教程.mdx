@@ -1,0 +1,390 @@
+---
+title: 'Laravel JWT身份验证教程'
+---
+
+> 参考：https://www.youtube.com/watch?v=PjXbF1UHvdg&t=14s
+
+## 无脑准备(照葫芦画瓢)
+
+```bash filename="新建laravel项目" switcher
+# 当前目录 /www2024/4_tutorial/2025
+📁 laravel new jwt-auth
+
+
+   _                               _
+  | |                             | |
+  | |     __ _ _ __ __ ___   _____| |
+  | |    / _` |  __/ _` \ \ / / _ \ |
+  | |___| (_| | | | (_| |\ V /  __/ |
+  |______\__,_|_|  \__,_| \_/ \___|_|
+
+
+ ┌ Which starter kit would you like to install? ────────────────┐
+ │ None                                                         │
+ └──────────────────────────────────────────────────────────────┘
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+Creating a "laravel/laravel" project at "./jwt-auth"
+Installing laravel/laravel (v12.0.8)
+  - Installing laravel/laravel (v12.0.8): Extracting archive
+Created project in /www2024/4_tutorial/2025/jwt-auth
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 110 installs, 0 updates, 0 removals
+  - Locking brick/math (0.12.3)
+# 略
+  - Locking webmozart/assert (1.11.0)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 110 installs, 0 updates, 0 removals
+  - Downloading symfony/polyfill-ctype (v1.32.0)
+#略
+  - Downloading sebastian/complexity (4.0.1)
+  - Installing doctrine/inflector (2.0.10): Extracting archive
+# 略
+
+  - Installing phpunit/phpunit (11.5.20): Extracting archive
+45 package suggestions were added by new dependencies, use `composer suggest` to see details.
+Generating optimized autoload files
+No security vulnerability advisories found.
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+> @php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+   INFO  Application key set successfully.
+
+ ┌ Which database will your application use? ───────────────────┐
+ │ MySQL                                                        │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Default database updated. Would you like to run the default database migrations? ┐
+ │ No                                                                               │
+ └──────────────────────────────────────────────────────────────────────────────────┘
+
+ ┌ Would you like to run npm install and npm run build? ────────┐
+ │ No                                                           │
+ └──────────────────────────────────────────────────────────────┘
+
+   INFO  Application ready in [jwt-auth]. You can start your local development using:
+
+➜ cd jwt-auth
+➜ npm install && npm run build
+➜ composer run dev
+
+  New to Laravel? Check out our documentation. Build something amazing!
+```
+
+```bash filename="数据库" switcher
+mysql -u root -p
+create database tutorial_2025_jwt_auth default character set utf8mb4 collate utf8mb4_unicode_ci;
+create user 'vueman'@'localhost' identified by '1234qwer';
+grant all on tutorial_2025_jwt_auth.* to vueman@localhost;
+
+
+# 修改 /www2024/4_tutorial/2025/jwt-auth
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tutorial_2025_jwt_auth
+DB_USERNAME=vueman
+DB_PASSWORD=1234qwer
+
+# 执行迁移
+php artisan migrate
+# 三张表：users, cache, jobs
+
+```
+
+```bash filename="本地安装laravel框架" switcher
+composer config repositories.laravel  '{"type":"path","url":"/www2024/0_common/php/laravel/**/","options":{"symlink":true}}'
+composer config minimum-stability dev # "minimum-stability": "stable",
+# 删除 vendor目录和 composer.lock文件后再执行 composer install
+```
+
+```bash filename="包jwt" switcher
+# https://github.com/PHP-Open-Source-Saver/jwt-auth
+📁 composer require php-open-source-saver/jwt-auth
+# 提供了两个命令 jwt:generate-certs(生成新的证书对) jwt:secret(设置JWTAuth密钥用于签名令牌)
+# /www2024/4_tutorial/2025/jwt-auth包下
+# src/Console/JWTGenerateCertCommand.php
+# src/Console/JWTSecretCommand.php
+
+📁 php artisan vendor:publish --provider="PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider"
+
+📁 php artisan jwt:secret
+# 会修改.env文件，加上64位随机字符串
+JWT_SECRET=zCWSKcJEfsRKmEwiMqln2VedzurrdCcIeL5h4n2utABB9bP00wb2IrRDCSXjLxhm
+JWT_ALGO=HS256
+```
+
+```php filename="修改User模型" switcher
+// 参考：https://laravel-jwt-auth.readthedocs.io/en/latest/quick-start/#update-your-user-model
+// 要在User 模型中实现 JWTSubject 接口
+// 实现了 JWTSubject 接口的模型，才能被 JWT 认证
+namespace PHPOpenSourceSaver\JWTAuth\Contracts;
+interface JWTSubject{
+    public function getJWTIdentifier(); //获取将存储在JWT的主题声明中的标识符。
+    public function getJWTCustomClaims();//返回一个键值数组，包含要添加到JWT中的任何自定义声明。
+}
+
+public function getJWTIdentifier()
+{
+    return $this->getKey(); // 返回主键的值
+}
+
+public function getJWTCustomClaims()
+{
+    return [];
+}
+```
+
+```php filename="修改auth.php配置文件" switcher
+// 参考：https://laravel-jwt-auth.readthedocs.io/en/latest/quick-start/#configure-auth-guard
+// 默认guard值为api，driver值为jwt
+
+'defaults' => [
+    'guard' => 'api', // 也可以修改.env，AUTH_GUARD=api
+    'passwords' => 'users',
+],
+
+'guards' => [
+    'api' => [
+        'driver' => 'jwt',
+        'provider' => 'users',
+    ],
+],
+```
+
+## 路由和控制器
+
+```php filename="routes/api.php" switcher
+// php artisan make:controller AuthController
+// 参考：laravel-jwt-auth.readthedocs.io/en/latest/routes-and-controllers/
+// 路由
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'v1/auth'
+], function ($router) {
+    Route::post('register', [AuthController::class,'register']);
+    Route::post('login', [AuthController::class,'login']);
+    Route::post('logout', [AuthController::class,'logout'])->middleware(['auth:api']);
+    Route::post('refresh', [AuthController::class,'refresh'])->middleware(['auth:api']);
+    Route::post('me', [AuthController::class,'me']);
+});
+```
+
+```php filename="bootstrap/app.php" switcher
+<?php
+
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        //
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 401);
+            }
+        });
+    })->create();
+```
+
+```php filename="AuthController.php" switcher
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Tests\Support\A;
+use Illuminate\Validation\Rules\Password;
+
+class AuthController extends Controller
+{
+    public function register(Request $request)
+    {
+
+        // 也可以在控制器的构造函数中使用中间件
+        // public function __construct()
+        // {
+        //     $this->middleware(['auth:api'],['except'=>['login','register']]);
+        // }
+        // 第一步：数据处理和校验
+        $request->validate([
+            'name'=>'string|required|max:255',
+            'email'=>'string|required|max:255|email|unique:users',
+            'password'=>['required','string',//'confirmed',
+                Password::defaults()?->letters()      // 必须包含字母
+                                    ->numbers()      // 必须包含数字
+                                    ->symbols()      // 必须包含特殊字符（如 !@#$%^&*）
+            ]
+        ]);
+        // 第二步：保存
+        $user =User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>Hash::make($request->password),
+        ]);
+        // 第三步：登录口令
+        $token = Auth::login($user);
+        // custom claims 指的是在标准 JWT 声明（如 iss、sub、aud、exp 等）之外，
+        // 你可以自定义添加的额外声明字段。这些字段用于存储应用特定的数据，例如用户角色、权限或其他业务逻辑需要的信息。
+
+        // 第四步：返回
+        return response()->json([
+            'status'=>'success',
+            'message'=>'user created successfully',
+            'user'=>$user,
+            'token'=>$token
+        ]);
+
+
+    }
+    public function login(Request $request)
+    {
+        // 第一步：数据处理和校验
+        $request->validate([
+            'email'=>'string|required|max:255|email',
+            'password'=>['required','string',
+                Password::defaults()?->letters()      // 必须包含字母
+                ->numbers()      // 必须包含数字
+                ->symbols()      // 必须包含特殊字符（如 !@#$%^&*）
+            ]
+        ]);
+
+        // 第二步：登录口令
+        $token = Auth::attempt($request->only('email','password'));
+        if(!$token){
+            return response()->json(
+                [
+                'status'=>'error',
+                'message'=>'Unauthorized',
+            ],401);
+        }
+        // 第三步：返回
+        return response()->json([
+            'status'=>'success',
+            'user'=>Auth::user(),
+            'authorization'=>[
+                'token'=>$token,
+                'type'=>'bearer'
+            ]
+
+        ]);
+    }
+    public function logout()
+    {
+        // 注册4步，登录3步，注销2步
+        Auth::logout();
+        return response()->json([
+            'status'=>'success',
+            'message'=>'logout successfully'
+        ]);
+    }
+    public function refresh()
+    {
+        // 注册4步，登录3步，注销2步,刷新1步
+        return response()->json([
+            'status'=>'success',
+            'user'=>Auth::user(),
+            'authorization'=>[
+                'token'=>Auth::refresh(),
+                'type'=>'bearer'
+            ]
+        ]);
+    }
+}
+```
+
+```bash filename="命令行测试" switcher
+# 测试注册
+curl -X POST http://127.0.0.1:8000/api/v1/auth/register \
+-H 'Accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{"name":"zhangsan","email":"zhangsan@163.com","password":"1234abcd@"}'
+# 成功返回： {"status":"success","message":"user created successfully","user":{"name":"zhangsan","email":"zhangsan@163.com","updated_at":"2025-06-16T02:53:46.000000Z","created_at":"2025-06-16T02:53:46.000000Z","id":1},"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGgvcmVnaXN0ZXIiLCJpYXQiOjE3NTAwNDI0MjYsImV4cCI6MTc1MDA0NjAyNiwibmJmIjoxNzUwMDQyNDI2LCJqdGkiOiJMT2E2WlkxZzdjYnJXSnkyIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.iUAXpwCJG2bnLD1vDiqHYXNAplg7E08eOp5_S8Bid98"}
+# token分三个部分以点分隔：头部、载荷、签名
+# 头部：{"typ":"JWT","alg":"HS256"}
+# 载荷：{"iss":"    ","iat":1755388626,"exp":1755392226,"nbf":1755388626,"jti":"    ","sub":"1"}
+# 签名：iUAXpwCJG2bnLD1vDiqHYXNAplg7E08eOp5_S8Bid98
+# 载荷中的sub字段是用户的ID，nbf和exp字段是token的有效期，iat字段是token的创建时间
+# 签名是通过头部和载荷和密钥生成的，密钥是在.env文件中设置的JWT_SECRET字段
+```
+
+## 声明
+
+在 JWT（JSON Web Token）规范中，这些字段被称为 标准声明（Registered Claims），是 JWT 中预定义的可选元数据字段。以下是每个字段的具体含义：
+
+1. iss（Issuer）
+   含义：签发者，标识 JWT 的签发主体（如网站域名或服务名称）。
+   用途：验证 Token 的来源，防止跨域伪造。
+   示例："iss": "https://example.com"
+2. iat（Issued At）
+   含义：签发时间，Token 创建的时间戳（UTC 秒）。
+   用途：结合 exp 或 nbf 判断 Token 的时效性。
+   示例："iat": 1630416000（表示 2021-09-01 00:00:00 UTC）
+3. exp（Expiration Time）
+   含义：过期时间，Token 失效的时间戳（UTC 秒）。
+   用途：自动验证 Token 是否过期，避免长时间使用旧 Token。
+   示例："exp": 1630502400（表示 2021-09-02 00:00:00 UTC）
+4. nbf（Not Before）
+   含义：生效时间，Token 开始生效的时间戳（UTC 秒）。
+   用途：指定 Token 在某个时间点前无效，例如预生成的 Token。
+   示例："nbf": 1630416000（表示 Token 在 2021-09-01 之后才有效）
+5. jti（JWT ID）
+   含义：唯一标识，为 Token 分配的唯一标识符。
+   用途：防止 Token 重复使用（如一次性 Token 或撤销机制）。
+   示例："jti": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"
+   注意事项
+   可选性：这些字段都是可选的，但建议至少包含 exp 以增强安全性。
+   验证逻辑：
+   接收方需验证 exp 是否小于当前时间（过期）。
+   接收方需验证 nbf 是否大于当前时间（未生效）。
+   TTL（Time To Live）：通常与 exp 关联，表示 Token 的有效时长。例如，TTL=3600 秒表示 exp = iat + 3600。
+
+## apifox测试
+
+<Image src="/jwt/2.png" width={600} height={400} />
+
+## 前端
+
+- https://tailwind.primevue.org/
+- https://github.com/primefaces/primevue-tailwind
+
+###
+
+```bash filename="安装primevue" switcher
+# 当前目录 /www2024/4_tutorial/2025/jwt-auth
+pnpm add primevue
+```
+
+```bash filename="安装primevue" switcher
+# 当前目录 /www2024/4_tutorial/2025/jwt-auth
+pnpm add primevue
+```
+
+### 基础准备
+
+- [x] 环境文件.env配置(`VITE_API_URL`)
+- [x] `/lib/axios` 配置
+- [x] 路由及守卫
+- [x] 认证相关页面
+
+### 认证页面详细内容

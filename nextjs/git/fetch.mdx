@@ -1,0 +1,47 @@
+---
+title: fetch用法
+---
+
+```bash
+root@pan:/www2024/0_common/php/laravel/laravel-framework-20250607# git fetch upstream
+Warning: Permanently added the ECDSA host key for IP address '198.18.0.39' to the list of known hosts.
+
+remote: Enumerating objects: 1164, done. # 远程仓库,开始扫描并列出所有需要传输的文件对象。
+remote: Counting objects: 100% (882/882), done. # 统计需要传输的对象数量，此处为 882 个。
+remote: Compressing objects: 100% (28/28), done. # 对需要传输的文件进行压缩，以减少数据传输量。
+remote: Total 1164 (delta 861), reused 855 (delta 854), pack-reused 282 (from 2) # 显示总共需要传输 1164 个对象（包含复用的对象）。
+Receiving objects: 100% (1164/1164), 463.51 KiB | 980.00 KiB/s, done. #本地仓库开始接收这些对象，传输速度为 980.00 KiB/s，总共接收了 463.51 KiB 的数据。
+Resolving deltas: 100% (898/898), completed with 457 local objects. # 合并本地仓库与远程仓库的差异，完成同步。
+From githubyoushengyouse:laravel/framework
+# 表明这些更新来自名为githubyoushengyouse的远程仓库中的laravel/framework项目。
+ * [new branch]            10.x                       -> upstream/10.x
+ # new branch 表示这些分支是本地仓库中原本没有的，此次从远程仓库新获取到的。
+ * [new branch]            11.x                       -> upstream/11.x
+ * [new branch]            11/issue-54401             -> upstream/11/issue-54401
+ * [new branch]            12.x                       -> upstream/12.x
+ * [new branch]            12/phpunit                 -> upstream/12/phpunit
+ * [new branch]            4.0                        -> upstream/4.0
+ * [new branch]            4.1                        -> upstream/4.1
+ * [new branch]            4.2                        -> upstream/4.2
+ * [new branch]            5.0                        -> upstream/5.0
+ * [new branch]            5.1                        -> upstream/5.1
+ * [new branch]            5.2                        -> upstream/5.2
+ * [new branch]            5.3                        -> upstream/5.3
+ * [new branch]            5.4                        -> upstream/5.4
+ * [new branch]            5.5                        -> upstream/5.5
+ * [new branch]            5.6                        -> upstream/5.6
+ * [new branch]            5.7                        -> upstream/5.7
+ * [new branch]            5.8                        -> upstream/5.8
+ * [new branch]            6.x                        -> upstream/6.x
+ * [new branch]            7.x                        -> upstream/7.x
+ * [new branch]            8.x                        -> upstream/8.x
+ * [new branch]            9.x                        -> upstream/9.x
+ * [new branch]            driesvints-patch-1         -> upstream/driesvints-patch-1
+ * [new branch]            fix-database-cache-driver-write-connection -> upstream/fix-database-cache-driver-write-connection
+ * [new branch]            fix-isolation-command-test -> upstream/fix-isolation-command-test
+ * [new branch]            master                     -> upstream/master
+ * [new branch]            pipeline-catch             -> upstream/pipeline-catch
+ * [new branch]            revert-53798-reduce        -> upstream/revert-53798-reduce
+ * [new branch]            revert-55607-12.x          -> upstream/revert-55607-12.x
+ * [new branch]            sync-config                -> upstream/sync-config
+```

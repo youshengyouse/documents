@@ -1,0 +1,86 @@
+---
+title: source流程分析
+---
+
+## source 流程分析
+
+```typescript filename="配置文件 source.config.ts" switcher
+// source.config.ts
+defineDocs({})返回的内容是
+ {
+  type: 'docs',
+  docs: {
+    _type: undefined,
+    type: 'doc',
+    dir: './content2025/docs',
+    schema: ZodObject {
+      spa: [Function: bound safeParseAsync] AsyncFunction,
+      _def: [Object],
+      parse: [Function: bound parse],
+      safeParse: [Function: bound safeParse],
+      parseAsync: [Function: bound parseAsync] AsyncFunction,
+      safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+      refine: [Function: bound refine],
+      refinement: [Function: bound refinement],
+      superRefine: [Function: bound superRefine],
+      optional: [Function: bound optional],
+      nullable: [Function: bound nullable],
+      nullish: [Function: bound nullish],
+      array: [Function: bound array],
+      promise: [Function: bound promise],
+      or: [Function: bound or],
+      and: [Function: bound and],
+      transform: [Function: bound transform],
+      brand: [Function: bound brand],
+      default: [Function: bound default],
+      catch: [Function: bound catch],
+      describe: [Function: bound describe],
+      pipe: [Function: bound pipe],
+      readonly: [Function: bound readonly],
+      isNullable: [Function: bound isNullable],
+      isOptional: [Function: bound isOptional],
+      '~standard': [Object],
+      _cached: [Object],
+      nonstrict: [Function: passthrough],
+      augment: [Function: extend]
+    }
+  },
+  meta: {
+    _type: undefined,
+    type: 'meta',
+    files: [ '**/*.{json,yaml}' ],
+    dir: './content2025/docs',
+    schema: ZodObject {
+      spa: [Function: bound safeParseAsync] AsyncFunction,
+      _def: [Object],
+      parse: [Function: bound parse],
+      safeParse: [Function: bound safeParse],
+      parseAsync: [Function: bound parseAsync] AsyncFunction,
+      safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+      refine: [Function: bound refine],
+      refinement: [Function: bound refinement],
+      superRefine: [Function: bound superRefine],
+      optional: [Function: bound optional],
+      nullable: [Function: bound nullable],
+      nullish: [Function: bound nullish],
+      array: [Function: bound array],
+      promise: [Function: bound promise],
+      or: [Function: bound or],
+      and: [Function: bound and],
+      transform: [Function: bound transform],
+      brand: [Function: bound brand],
+      default: [Function: bound default],
+      catch: [Function: bound catch],
+      describe: [Function: bound describe],
+      pipe: [Function: bound pipe],
+      readonly: [Function: bound readonly],
+      isNullable: [Function: bound isNullable],
+      isOptional: [Function: bound isOptional],
+      '~standard': [Object],
+      _cached: null,
+      nonstrict: [Function: passthrough],
+      augment: [Function: extend]
+    }
+  }
+}
+```

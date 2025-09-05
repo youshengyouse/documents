@@ -1,0 +1,118 @@
+---
+title: Sandpack
+description: A playground for your code
+---
+- 参考：https://www.ctnicholas.dev/articles/how-to-use-sandpack-for-code-demos
+
+## 基于vite新建一个react项目
+```bash
+# 当前目录  /www2024/5_docs
+ pnpm create vite
+
+◇  Project name:  del2
+◇  Select a framework:  React
+◇  Select a variant:  TypeScript
+◇  Scaffolding project in /www2024/5_docs/del2...
+└  Done. Now run:
+
+  cd del2
+  pnpm install
+  pnpm run dev
+```
+内容简单如下:
+```tsx filename="src/App.tsx" switcher
+export default  function App() {
+  return (   <h1 style={{textAlign:"center"}}>欢迎来到长沙!</h1>  )
+}
+```
+```tsx filename="src/main.tsx" switcher
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+```
+
+## 安装sandpack
+- 参考：https://sandpack.codesandbox.io/docs/getting-started
+```bash
+pnpm add -D @codesandbox/sandpack-react
+```
+修改 App.tsx 内容如下:
+```tsx filename="src/App.tsx" switcher
+import { Sandpack } from "@codesandbox/sandpack-react"; 
+export default  function App() {
+  return (   <Sandpack />  ) 
+}
+```
+```tsx filename="src/App.tsx 修改记录"  switcher
+import { Sandpack } from "@codesandbox/sandpack-react"; // [!code ++]
+export default  function App() {
+  return ( <h1 style={{textAlign:"center"}}>欢迎来到长沙!</h1>）   // [!code --]
+  return (   <Sandpack />  ) // [!code ++]
+}
+```
+现在可以修改左边的代码，右边会实时显示效果，神奇不？
+
+修改 App.tsx 内容如下:
+```tsx filename="src/App.tsx 模板为react" switcher
+import { Sandpack } from "@codesandbox/sandpack-react"; 
+export default  function App() {
+  return (   <Sandpack template="react" />  ) 
+}
+```
+```tsx filename="src/App.tsx 模板为vue" switcher
+import { Sandpack } from "@codesandbox/sandpack-react"; 
+export default  function App() {
+  return (   <Sandpack template="vue" />  )  // 此时左侧代码为vue代码，右边会显示vue效果，但要下载vue，第一次比较慢
+}
+```
+
+## 代码演示
+- 参考：https://ant-design.antgroup.com/components/button-cn?from=msidevs.net#examples
+```bash
+pnpm add -D antd
+```
+修改App.tsx 内容如下:
+```tsx filename="src/App.tsx" switcher
+import { Sandpack } from "@codesandbox/sandpack-react";
+export default function App() {
+    const html = `
+import React from 'react';
+import { Button, Flex } from 'antd';
+
+const App: React.FC = () => (
+  <Flex gap="small" wrap>
+    <Button type="primary">Primary Button</Button>
+    <Button>Default Button</Button>
+    <Button type="dashed">Dashed Button</Button>
+    <Button type="text">Text Button</Button>
+    <Button type="link">Link Button</Button>
+  </Flex>
+);
+
+export default App;
+  `
+    return (
+        <Sandpack
+            template="react"
+            customSetup={{
+                dependencies: {
+                    antd: "^5.25.1", // 注意这里的版本号,与package.json中的版本号保持一致
+                    react: "^19.1.0",
+                },
+            }}
+            files={{
+                "App.js": html, // 不是App.tsx
+            }}
+        />
+    );
+}
+```
+{/* 图片不知怎么整 */}
+
+<MyImage src="/1.png" width="500" height="500" alt="Description" />

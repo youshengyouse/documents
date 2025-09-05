@@ -1,0 +1,346 @@
+---
+title: 前后端安装
+---
+
+## 前后端安装
+
+```bash filename="vue3安装" switcher
+# 当前目录/www2024/4_tutorial/laravel/vue_and_laravel
+# 1️⃣
+pnpm create vue@latest
+
+.../1971af0851d-3fa4                     |   +1 +
+.../1971af0851d-3fa4                     | Progress: resolved 1, reused 0, downloaded 1, added 1, done
+┌  Vue.js - The Progressive JavaScript Framework
+│
+◇  Project name (target directory): # 请输入项目名称
+│  frontend-vue
+│
+◇  Select features to include in your project: (↑/↓ to navigate, space to select, a to toggle all, enter to
+confirm)
+│  TypeScript, JSX Support, Router (SPA development), Pinia (state management), Vitest (unit testing),
+End-to-End Testing, ESLint (error prevention), Prettier (code formatting)
+│
+◇  Select an End-to-End testing framework: (↑/↓ to navigate, enter to confirm)
+│  Playwright
+│
+◇  Install Oxlint for faster linting? (experimental)
+│  No
+
+Scaffolding project in /www2024/4_tutorial/laravel/vue_and_laravel/frontend-vue...
+│
+└  Done. Now run:
+
+# 2️⃣ 执行下面四行命令
+   cd frontend-vue
+   pnpm i
+   pnpm add axios # 后面会用到
+   pnpm format
+
+
+| Optional: Initialize Git in your project directory with:
+
+# 3️⃣ git
+   git init && git add -A && git commit -m "第一次提交"
+
+pnpm dev
+# 此时会自动打开浏览器，访问 URL_ADDRESS27.0.0.1:5173/
+# 4️⃣ 将端口改为700
+# 修改vite.config.ts
+export default defineConfig({
+  plugins: [vue(), vueJsx(), vueDevTools()],
+
+  server: {
+    port: 7000,
+  },
+
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+})
+```
+
+```bash filename="laravel安装" switcher
+# 当前目录/www2024/4_tutorial/laravel/vue_and_laravel
+1️⃣
+laravel new backend-laravel
+
+   _                               _
+  | |                             | |
+  | |     __ _ _ __ __ ___   _____| |
+  | |    / _` |  __/ _` \ \ / / _ \ |
+  | |___| (_| | | | (_| |\ V /  __/ |
+  |______\__,_|_|  \__,_| \_/ \___|_|
+
+
+ ┌ Which starter kit would you like to install? ────────────────┐
+ │ None                                                         │
+ └──────────────────────────────────────────────────────────────┘
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+Creating a "laravel/laravel" project at "./backend-laravel"
+Installing laravel/laravel (v12.0.8)
+  - Installing laravel/laravel (v12.0.8): Extracting archive
+Created project in /www2024/4_tutorial/laravel/vue_and_laravel/backend-laravel
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 110 installs, 0 updates, 0 removals
+  - Locking brick/math (0.12.3)
+  ... 略
+  - Locking webmozart/assert (1.11.0)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 110 installs, 0 updates, 0 removals
+  - Installing doctrine/inflector (2.0.10): Extracting archive
+  ... 略
+  - Installing phpunit/phpunit (11.5.20): Extracting archive
+45 package suggestions were added by new dependencies, use `composer suggest` to see details.
+Generating optimized autoload files
+No security vulnerability advisories found.
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+> @php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+   INFO  Application key set successfully.
+
+ ┌ Which database will your application use? ───────────────────┐
+ │ MySQL                                                        │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Default database updated. Would you like to run the default database migrations? ┐
+ │ No                                                                               │
+ └──────────────────────────────────────────────────────────────────────────────────┘
+
+ ┌ Would you like to run npm install and npm run build? ────────┐
+ │ No                                                           │
+ └──────────────────────────────────────────────────────────────┘
+
+   INFO  Application ready in [backend-laravel]. You can start your local development using:
+# 2️⃣ 安装前端依赖
+➜ cd backend-laravel
+➜ pnpm i && pnpm build
+➜ composer run dev
+
+  New to Laravel? Check out our documentation. Build something amazing!
+
+# 3️⃣ git
+git init && git add -A && git commit -m "第一次提交"
+
+# 4️⃣请先准备好数据库
+mysql -u root -p
+create database tutorial_vue_and_laravel default character set utf8mb4 collate utf8mb4_unicode_ci;
+create user 'vueman'@'localhost' identified by '1234qwer';
+grant all on tutorial_vue_and_laravel.* to vueman@localhost;
+\q
+# 修改 /www2024/4_tutorial/laravel/vue_and_laravel/backend/.env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tutorial_vue_and_laravel
+DB_USERNAME=vueman
+DB_PASSWORD=1234qwer
+
+# 5️⃣ 执行下面的命令，启动后端
+# composer run dev
+php artisan serve
+```
+
+```json filename="composer.json" switcher
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "laravel/laravel",
+  "type": "project",
+  "description": "The skeleton application for the Laravel framework.",
+  "keywords": ["laravel", "framework"],
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "laravel/framework": "^12.0",
+    "laravel/tinker": "^2.10.1"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.23",
+    "laravel/pail": "^1.2.2",
+    "laravel/pint": "^1.13",
+    "laravel/sail": "^1.41",
+    "mockery/mockery": "^1.6",
+    "nunomaduro/collision": "^8.6",
+    "phpunit/phpunit": "^11.5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ],
+    "post-update-cmd": [
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi",
+      "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+      "@php artisan migrate --graceful --ansi"
+    ],
+    "dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+    ],
+    "test": ["@php artisan config:clear --ansi", "@php artisan test"]
+  },
+  "extra": {
+    "laravel": {
+      "dont-discover": []
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
+```
+
+```json filename="package.json" switcher
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "pinia": "^3.0.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@tsconfig/node22": "^22.0.1",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vitejs/plugin-vue-jsx": "^4.1.2",
+    "@vitest/eslint-plugin": "^1.1.39",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.5.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "^9.22.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "eslint-plugin-vue": "~10.0.0",
+    "jiti": "^2.4.2",
+    "jsdom": "^26.0.0",
+    "npm-run-all2": "^7.0.2",
+    "prettier": "3.5.3",
+    "typescript": "~5.8.0",
+    "vite": "^6.2.4",
+    "vite-plugin-vue-devtools": "^7.7.2",
+    "vitest": "^3.1.1",
+    "vue-tsc": "^2.2.8"
+  }
+}
+```
+
+```bash filename="后端：api路由" switcher
+# 当前目录 /www2024/4_tutorial/laravel/vue_and_laravel/backend-laravel
+# 1️⃣
+php artisan install:api
+Composer plugins have been disabled for safety in this non-interactive session.
+Set COMPOSER_ALLOW_SUPERUSER=1 if you want to allow plugins to run as root/super user.
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+./composer.json has been updated
+Running composer update laravel/sanctum
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 1 install, 0 updates, 0 removals
+  - Locking laravel/sanctum (v4.1.1)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 1 install, 0 updates, 0 removals
+  - Downloading laravel/sanctum (v4.1.1)
+  - Installing laravel/sanctum (v4.1.1): Extracting archive # 安装 laravel/sanctum
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  laravel/pail .......................................................... DONE
+  laravel/sail .......................................................... DONE
+  laravel/sanctum ....................................................... DONE
+  laravel/tinker ........................................................ DONE
+  nesbot/carbon ......................................................... DONE
+  nunomaduro/collision .................................................. DONE
+  nunomaduro/termwind ................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+
+   INFO  Published API routes file.
+
+ One new database migration has been published. Would you like to run all pending database migrations? (yes/no) [yes]:
+ > yes
+
+   INFO  Running migrations.
+
+  2025_05_29_080543_create_personal_access_tokens_table ..................................... 75.86ms DONE
+
+   INFO  API scaffolding installed. Please add the [Laravel\Sanctum\HasApiTokens] trait to your User model.
+# 2️⃣
+# 修改app/Models/User.php
+use Laravel\Sanctum\HasApiTokens;
+use HasFactory, Notifiable,HasApiTokens;
+```
+
+```bash filename="前端：.env" switcher
+# 新建文件.env.local
+APP_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:7000
+```
+
+```bash filename="hosts" switcher
+# windows中 C:\Windows\System32\drivers\etc\hosts
+# ubuntu中# /etc/hosts，如果是在wsl2中，需要修改 /etc/wsl.conf，将下面的内容添加到文件中
+#[network]
+#generateResolvConf = false
+127.0.0.1 backend.laravel
+127.0.0.1 frontend.vue
+
+php artisan serve --host=backend.laravel --port=8000
+pnpm dev --host=frontend.vue --port=7000
+```

@@ -1,0 +1,66 @@
+---
+title: Login页面
+---
+
+## Login页面
+
+将注册页面的内容复制过来，修改为登录页面
+
+```vue filename="LoginView.vue" switcher
+<script setup lang="ts">
+import axiosInstance from '@/lib/axios'
+import { reactive } from 'vue'
+
+interface LoginForm {
+  email: string
+  password: string
+}
+const formData = reactive<LoginForm>({
+  email: '',
+  password: '',
+})
+
+const login = async (payload: LoginForm) => {
+  console.log('登录中...')
+  await axiosInstance.get('http://frontend.vue:7000/sanctum/csrf-cookie', {
+    baseURL: import.meta.env.VITE_BACKEND_URL_BASE,
+  })
+  try {
+    const result = await axiosInstance.post('login', payload)
+    console.log('axios请求的结果:', result)
+  } catch (e) {
+    console.log('错误', e)
+  }
+}
+// 登录响应报：{"two_factor":false}
+</script>
+<template>
+  <form
+    class="max-w-5xl min-w-sm p-5 bg-slate-400 rounded"
+    @submit.prevent="() => login(formData)"
+  >
+    <div class="mb-5">
+      <label for="email" class="form-label">邮箱</label>
+      <input
+        type="email"
+        id="email"
+        class="form-input"
+        placeholder="name@flowbite.com"
+        v-model="formData.email"
+      />
+    </div>
+    <div class="mb-5">
+      <label for="password" class="form-label">密码</label>
+      <input
+        type="password"
+        id="password"
+        class="form-input"
+        v-model="formData.password"
+      />
+    </div>
+
+    <button type="submit" class="form-button">登录</button>
+  </form>
+</template>
+<style scoped></style>
+```

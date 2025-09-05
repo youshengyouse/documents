@@ -1,0 +1,60 @@
+---
+title: blog布局
+---
+
+## 导航链接
+
+```ts
+//src/app/layout.config.tsx
+  {
+      text: "博客",
+      url: "/blog",
+      active: "nested-url", // url与nested-url区别
+    },
+```
+
+## 博客首页
+
+```ts
+//src/app/blog/page.tsx
+export default function Page() {
+  return <div> 博客页面 </div>;
+}
+```
+
+## 结构
+
+```bash
+# 所有文档都放在/www2024/0_common/blog 下面
+ln -s /www2024/0_common/blog /www2024/4_tutorial/2025/fumadocs-basic/content2025/blog
+# rm /www2024/4_tutorial/2025/fumadocs-basic/content2025/docs
+```
+
+## 源指定
+
+```ts
+// src/lib/source.ts
+import { docs, blog as blogPosts } from "@/.source";
+import { loader } from "fumadocs-core/source";
+import { createMDXSource } from "fumadocs-mdx";
+
+// See https://fumadocs.vercel.app/docs/headless/source-api for more info
+export const source = loader({
+  // it assigns a URL to your pages
+  baseUrl: "/docs",
+  source: docs.toFumadocsSource(),
+});
+export const blogSource = loader({
+  baseUrl: "/blog",
+  source: createMDXSource(blogPosts, []),
+});
+```
+
+```ts
+// src/app/blog/[[...slug]]/page.tsx
+export default async function Page(props) {
+  const { params } = props;
+  const { slug } = await params;
+  console.log("blog页面slug值", slug);
+}
+```

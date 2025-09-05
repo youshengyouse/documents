@@ -1,0 +1,157 @@
+---
+title: 02-安装fortify
+---
+
+## 安装laravel/fortify
+
+```bash filename="安装fortify(2步)" switcher
+# 第1️⃣步：安装 laravel/fortify
+# 当前目录：/www2024/4_tutorial/laravel/vue_and_laravel/backend-laravel
+composer require laravel/fortify
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+./composer.json has been updated
+Running composer update laravel/fortify
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 5 installs, 0 updates, 0 removals
+  - Locking bacon/bacon-qr-code (v3.0.1)
+  - Locking dasprid/enum (1.0.6)
+  - Locking laravel/fortify (v1.25.4)
+  - Locking paragonie/constant_time_encoding (v3.0.0)
+  - Locking pragmarx/google2fa (v8.0.3)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 5 installs, 0 updates, 0 removals
+  - Downloading dasprid/enum (1.0.6)
+  - Downloading paragonie/constant_time_encoding (v3.0.0)
+  - Downloading pragmarx/google2fa (v8.0.3)
+  - Downloading bacon/bacon-qr-code (v3.0.1)
+  - Downloading laravel/fortify (v1.25.4)
+  - Installing dasprid/enum (1.0.6): Extracting archive
+  - Installing paragonie/constant_time_encoding (v3.0.0): Extracting archive
+  - Installing pragmarx/google2fa (v8.0.3): Extracting archive
+  - Installing bacon/bacon-qr-code (v3.0.1): Extracting archive
+  - Installing laravel/fortify (v1.25.4): Extracting archive
+1 package suggestions were added by new dependencies, use `composer suggest` to see details.
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  laravel/fortify .............................................................................................. DONE
+  laravel/pail ................................................................................................. DONE
+  laravel/sail ................................................................................................. DONE
+  laravel/sanctum .............................................................................................. DONE
+  laravel/tinker ............................................................................................... DONE
+  nesbot/carbon ................................................................................................ DONE
+  nunomaduro/collision ......................................................................................... DONE
+  nunomaduro/termwind .......................................................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+Using version ^1.25 for laravel/fortify
+# 第2️⃣步：发布资源
+php artisan fortify:install
+
+# 增加的文件如下
+├── app
+    ├── Actions
+    │   └── Fortify
+    │       ├── CreateNewUser.php
+    │       ├── PasswordValidationRules.php
+    │       ├── ResetUserPassword.php
+    │       ├── UpdateUserPassword.php
+    │       └── UpdateUserProfileInformation.php
+    └── Providers
+        └── FortifyServiceProvider.php
+├── config/fortify.php
+├── database/migrations/2025_05_29_091030_add_two_factor_columns_to_users_table.php
+```
+
+```bash filename="路由" switcher
+# 安装前路由
+  GET|HEAD       / ..................................................................................................
+  GET|HEAD       api/user ...........................................................................................
+  GET|HEAD       sanctum/csrf-cookie .............. sanctum.csrf-cookie › Laravel\Sanctum › CsrfCookieController@show
+  GET|HEAD       storage/{path} ....................................................................... storage.local
+  GET|HEAD       up .................................................................................................
+
+# 安装后路由
+# 修改 config/fortify.php，  'prefix' => 'api',这样会让路由前缀为 api
+  GET|HEAD  / ......................................................................................................................................
+  GET|HEAD  api/user ...............................................................................................................................
+  GET|HEAD  forgot-password ................................................ password.request › Laravel\Fortify › PasswordResetLinkController@create
+  POST      forgot-password ................................................... password.email › Laravel\Fortify › PasswordResetLinkController@store
+  GET|HEAD  login .................................................................. login › Laravel\Fortify › AuthenticatedSessionController@create
+  POST      login ............................................................. login.store › Laravel\Fortify › AuthenticatedSessionController@store
+  POST      logout ............................................................... logout › Laravel\Fortify › AuthenticatedSessionController@destroy
+  GET|HEAD  register .................................................................. register › Laravel\Fortify › RegisteredUserController@create
+  POST      register ............................................................. register.store › Laravel\Fortify › RegisteredUserController@store
+  POST      reset-password ......................................................... password.update › Laravel\Fortify › NewPasswordController@store
+  GET|HEAD  reset-password/{token} ................................................. password.reset › Laravel\Fortify › NewPasswordController@create
+  GET|HEAD  sanctum/csrf-cookie .................................................. sanctum.csrf-cookie › Laravel\Sanctum › CsrfCookieController@show
+  GET|HEAD  storage/{path} ........................................................................................................... storage.local
+  GET|HEAD  two-factor-challenge ............................... two-factor.login › Laravel\Fortify › TwoFactorAuthenticatedSessionController@create
+  POST      two-factor-challenge .......................... two-factor.login.store › Laravel\Fortify › TwoFactorAuthenticatedSessionController@store
+  GET|HEAD  up .....................................................................................................................................
+  GET|HEAD  user/confirm-password .......................................... password.confirm › Laravel\Fortify › ConfirmablePasswordController@show
+  POST      user/confirm-password ................................... password.confirm.store › Laravel\Fortify › ConfirmablePasswordController@store
+  GET|HEAD  user/confirmed-password-status ........................ password.confirmation › Laravel\Fortify › ConfirmedPasswordStatusController@show
+  POST      user/confirmed-two-factor-authentication ....... two-factor.confirm › Laravel\Fortify › ConfirmedTwoFactorAuthenticationController@store
+  PUT       user/password ....................................................... user-password.update › Laravel\Fortify › PasswordController@update
+  PUT       user/profile-information ....................... user-profile-information.update › Laravel\Fortify › ProfileInformationController@update
+  POST      user/two-factor-authentication ........................... two-factor.enable › Laravel\Fortify › TwoFactorAuthenticationController@store
+  DELETE    user/two-factor-authentication ........................ two-factor.disable › Laravel\Fortify › TwoFactorAuthenticationController@destroy
+  GET|HEAD  user/two-factor-qr-code .......................................... two-factor.qr-code › Laravel\Fortify › TwoFactorQrCodeController@show
+  GET|HEAD  user/two-factor-recovery-codes .............................. two-factor.recovery-codes › Laravel\Fortify › RecoveryCodeController@index
+  POST      user/two-factor-recovery-codes .......................................................... Laravel\Fortify › RecoveryCodeController@store
+  GET|HEAD  user/two-factor-secret-key ................................. two-factor.secret-key › Laravel\Fortify › TwoFactorSecretKeyController@show
+
+                                                                                                                                 Showing [28] routes
+```
+
+## api接口测试
+
+- Apipost
+- apifox (选用)
+- Apifox
+- postman
+- Insomnia
+- Hoppscotch（原 Postwoman）
+- YApi
+
+<Tabs items={['注册']}>
+  <Tab value="注册">
+    <Image src="/vue_and_laravel/1.png" alt="注册" width={800} height={600} />
+    错误提示：`419 page expired` Laravel 默认通过 @csrf 指令在表单中生成 CSRF 令牌。若表单未包含该指令，或用户长时间停留在页面导致令牌过期（如超过会话有效期），提交时会触发
+    419 错误。
+  </Tab>
+</Tabs>
+
+## 前端页面(组件)及路由准备
+
+- 快捷键 vbase
+- 页面及组件命名使用两个单词
+
+```ts filename="src/views/auth/DashboardView.vue" switcher
+
+```
+
+```ts filename="src/views/auth/LoginView.vue" switcher
+
+```
+
+```ts filename="src/views/auth/RegisterView.vue" switcher
+
+```
+
+```ts filename="src/router/index.ts" switcher
+// http://localhost:7000/dashboard
+// http://localhost:7000/login
+// http://localhost:7000/register
+```

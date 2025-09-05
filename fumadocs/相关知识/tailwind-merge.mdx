@@ -1,0 +1,123 @@
+---
+title: Tailwind Merge
+demo: https://tailwind-merge.vercel.app/
+description: >-
+  Utility-first CSS class merging for Tailwind CSS.
+ssg:
+  - Nextjs
+css:
+  - Tailwind
+  - PostCSS
+---
+
+##
+
+`tailwind-merge` 是一个用于合并 Tailwind CSS 类的实用工具，它能智能地解决类冲突问题，确保最终应用的样式符合预期。下面介绍它的基本用法和常见场景。
+
+### 安装
+
+```bash
+npm install tailwind-merge
+# 或者
+yarn add tailwind-merge
+```
+
+### 基本用法
+
+最常用的是 `twMerge` 函数，它会合并多个类字符串，自动移除冲突的类并保留正确的优先级：
+
+```javascript
+import { twMerge } from "tailwind-merge";
+
+// 基础合并，相同属性后定义的类会覆盖前面的
+twMerge("px-2 px-4"); // 结果: 'px-4'
+
+// 不同属性的类会保留
+twMerge("px-4 py-2 bg-red hover:bg-blue"); // 结果不变
+
+// 处理变体冲突
+twMerge("hover:bg-red hover:bg-blue"); // 结果: 'hover:bg-blue'
+
+// 复杂合并示例
+twMerge("px-2 py-3 bg-red-500", "px-4 bg-[#FF5733] text-white", "md:px-6");
+// 结果: 'py-3 px-4 bg-[#FF5733] text-white md:px-6'
+```
+
+### 在条件渲染中使用
+
+处理动态类名时特别有用，避免意外的样式冲突：
+
+```jsx
+// React 组件示例
+function Button({ variant, className, ...props }) {
+  const baseClasses = "px-4 py-2 rounded font-medium transition-colors";
+  const variantClasses = {
+    primary: "bg-blue-500 text-white hover:bg-blue-600",
+    secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
+    danger: "bg-red-500 text-white hover:bg-red-600",
+  };
+
+  // 使用 twMerge 合并所有类
+  const finalClasses = twMerge(
+    baseClasses,
+    variantClasses[variant] || "",
+    className
+  );
+
+  return <button className={finalClasses} {...props} />;
+}
+
+// 使用示例
+<Button variant="primary" className="mt-4" />;
+// 最终类: 'px-4 py-2 rounded font-medium transition-colors bg-blue-500 text-white hover:bg-blue-600 mt-4'
+```
+
+### 自定义配置
+
+可以创建自定义合并函数，添加自己的类映射和冲突规则：
+
+```javascript
+import { createMergeClasses } from "tailwind-merge";
+
+// 创建自定义合并函数
+const customTwMerge = createMergeClasses({
+  // 添加自定义类映射
+  classGroups: {
+    "content-auto": ["content-visibility-auto"],
+    "animate-spin-slow": ["animate-[spin_3s_linear_infinite]"],
+  },
+});
+
+// 使用自定义合并函数
+customTwMerge("content-auto animate-spin animate-spin-slow");
+// 结果: 'content-visibility-auto animate-[spin_3s_linear_infinite]'
+```
+
+### 与其他工具结合
+
+与 clsx 或 classnames 等工具配合处理复杂条件类：
+
+```javascript
+import { twMerge } from "tailwind-merge";
+import { clsx } from "clsx";
+
+function App({ isActive, isDisabled }) {
+  const classes = twMerge(
+    clsx(
+      "px-4 py-2 rounded",
+      isActive ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800",
+      isDisabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"
+    )
+  );
+
+  return <button className={classes}>Click me</button>;
+}
+```
+
+### 注意事项
+
+1. 只能合并 Tailwind 类，普通 CSS 类可能会被意外移除
+2. 不支持复杂的自定义工具类（如使用 `@layer utilities` 定义的）
+3. 对于动态生成的类名（如 `text-[clamp(1rem,3vw,2rem)]`）可能无法正确处理冲突
+
+合理使用 `tailwind-merge` 可以大大简化类管理，减少 CSS 体积，并避免样式冲突带来的调试麻烦。

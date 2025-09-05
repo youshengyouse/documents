@@ -1,0 +1,79 @@
+---
+title: 基础教程第02课
+---
+
+## ❶ 基于 next/font/local 使用本地字体
+
+### 全局变量的方式(共三步)
+
+```tsx filename="app/layout.tsx" switcher
+// app/fonts.ts
+import localFont from "next/font/local";
+
+// 加载 Inter 字体
+const CustomFont = localFont({
+  src: "../public/刘梦吟新楷.ttf",
+  variable: "--font-1234",
+  display: "swap",
+  preload: true,
+});
+
+export default CustomFont;
+
+// app/layout.tsx
+import lmyfont from "./fonts"; // 第一步：使用localFont({src,varialbe})配置变量，单独放一个文件
+return (
+  <html
+    lang="zh-CN"
+    className={`${lmyfont.variable}`} // 第二步：这里定义变量，提醒：不是 className={lmyfont.className},否则全局设置了字体为刘梦吟新楷
+  >
+    <body className="flex flex-col min-h-screen">
+      <RootProvider>{children}</RootProvider>
+    </body>
+  </html>
+);
+```
+
+```css filename="app/global.css" switcher
+/* 使用字体变量 */
+h1 a {
+  font-family: var(--font-1234);
+  /* 第三步：直接使用第一步定义的字体家族变量 */
+}
+```
+
+### 在组件中使用(共二步)
+
+```tsx
+import abcde from "./fonts"; // 第一步：使用localFont({src,varialbe})配置变量，单独放一个文件或直接在layout.tsx中写
+return (
+  <div className={abcde.className}> 我使用的是本地字体 </div> // 第二步，直接使用className就行
+);
+```
+
+## ❷ 全局设置 @font-face
+
+```css filename="app/global.css" switcher
+@font-face {
+  font-family: "suibianxie";
+  src: url("/刘梦吟新楷.ttf") format("ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+```
+
+```tsx filename="任何组件或md文件等" switcher
+<div style={{ fontFamily: "cs" }} className="text-9xl text-cyan-800">
+  大漠孤烟直，长河落日圆
+</div>
+```
+
+## ❸ 总结
+
+- 如何安装本地字库
+
+## ❹ 课后作业及思考
+
+- 如何在 tailwindcss 中使用本地字库([参考 1](https://mikebifulco.com/posts/custom-fonts-with-next-font-and-tailwind))
+
+{/* ⓿ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴ */}

@@ -1,0 +1,665 @@
+---
+title: 基础教程第01课
+description: 使用pnpm新建nextjs项目
+---
+
+# 基础教程第 01 课
+
+## 介绍
+
+- 教程代码位置：`F:\www2025-in-win11\4_tutorial\nextjs\basic-free`
+- 适合对象：新手
+- 包管理器使用`pnpm`
+
+## ❶ 新建 nextjs 项目
+
+```bash filename="pnpm" switcher
+# 当前目录：/www2024/4_tutorial/nextjs/basic-free
+pnpm dlx create-next-app@latest 01
+```
+
+```bash filename="npm" switcher
+# 当前目录：/www2024/4_tutorial/nextjs/basic-free
+npx create-next-app@latest 01
+```
+
+```bash filename="镜像设置" switcher
+# 当前目录：/www2024/4_tutorial/nextjs/basic-free
+#查询当前使用的镜像源
+npm get registry
+
+#设置为淘宝镜像源
+npm config set registry https://registry.npmmirror.com/
+
+#验证设置
+npm get registry
+
+#还原为官方源
+npm config set registry https://registry.npmjs.org/
+```
+
+```bash filename="安装过程如下，全选yes" switcher
+root@pan:/www2024/4_tutorial/nextjs/basic-free# pnpm dlx create-next-app@latest 01
+# 全选yes(键盘向右键)
+✔ Would you like to use TypeScript? … No / Yes
+✔ Would you like to use ESLint? … No / Yes
+✔ Would you like to use Tailwind CSS? … No / Yes
+✔ Would you like your code inside a `src/` directory? … No / Yes
+✔ Would you like to use App Router? (recommended) … No / Yes
+✔ Would you like to use Turbopack for `next dev`? … No / Yes
+✔ Would you like to customize the import alias (`@/*` by default)? … No / Yes
+✔ What import alias would you like configured? … @/*
+Creating a new Next.js app in /www2024/4_tutorial/nextjs/basic-free/03.
+
+Using pnpm.
+
+Initializing project with template: app-tw
+
+
+Installing dependencies: #安装了三个依赖
+- react
+- react-dom
+- next
+
+Installing devDependencies: #安装了9个开发依赖
+- typescript
+- @types/node
+- @types/react
+- @types/react-dom
+- @tailwindcss/postcss
+- tailwindcss
+- eslint
+- eslint-config-next
+- @eslint/eslintrc
+
+ WARN  GET https://registry.npmmirror.com/@humanwhocodes%2Fretry error (ETIMEDOUT). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmmirror.com/@types%2Festree error (ETIMEDOUT). Will retry in 10 seconds. 2 retries left.
+ WARN  GET https://registry.npmmirror.com/@types%2Fjson-schema error (ETIMEDOUT). Will retry in 10 seconds. 2 retries left.
+Packages: +327
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 394, reused 330, downloaded 2, added 327, done
+
+dependencies:
++ next 15.3.2
++ react 19.1.0
++ react-dom 19.1.0
+
+devDependencies:
++ @eslint/eslintrc 3.3.1
++ @tailwindcss/postcss 4.1.7
++ @types/node 20.17.50 (22.15.21 is available)
++ @types/react 19.1.4
++ @types/react-dom 19.1.5
++ eslint 9.27.0
++ eslint-config-next 15.3.2
++ tailwindcss 4.1.7
++ typescript 5.8.3
+
+╭ Warning ───────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                            │
+│   Ignored build scripts: @tailwindcss/oxide, sharp, unrs-resolver.                         │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed to run scripts.   │
+│                                                                                            │
+╰────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Done in 13.5s using pnpm v10.6.2
+Initialized a git repository.
+
+Success! Created 03 at /www2024/4_tutorial/nextjs/basic-free/01
+
+```
+
+```bash filename="项目结构如下" switcher
+.
+├── README.md
+├── eslint.config.mjs
+├── next-env.d.ts
+├── next.config.ts
+├── node_modules
+│   ├── @eslint
+│   ├── @tailwindcss
+│   ├── @types
+│   ├── eslint -> .pnpm/eslint@9.27.0_jiti@2.4.2/node_modules/eslint
+│   ├── eslint-config-next -> .pnpm/eslint-config-next@15.3.2_eslint@9.27.0_jiti@2.4.2__typescript@5.8.3/node_modules/eslint-config-next
+│   ├── next -> .pnpm/next@15.3.2_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next
+│   ├── react -> .pnpm/react@19.1.0/node_modules/react
+│   ├── react-dom -> .pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom
+│   ├── tailwindcss -> .pnpm/tailwindcss@4.1.7/node_modules/tailwindcss
+│   └── typescript -> .pnpm/typescript@5.8.3/node_modules/typescript
+├── package.json
+├── pnpm-lock.yaml
+├── postcss.config.mjs
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src
+│   └── app
+└── tsconfig.json
+```
+
+终端运行 `pnpm dev` 启动项目
+
+## ❷ 编辑器 VSCode/Trae 配置(可略)
+
+- 配置文件：`/C:/Users/qianjin/AppData/Roaming/Trae/User/settings.json`
+
+```json filename="settings.json" switcher
+{
+  "editor.selectionHighlight": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.occurrencesHighlight": "off",
+  "editor.matchBrackets": "never",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "markdown-header-coloring.textDecoration": "position: absolute, padding: 1px; font-size: 1.5em;text-transform: uppercase;background: linear-gradient(to right, #f00 0%, #f80 14.28%, #dd0 28.56%, #0d0 42.85%, #0dd 57.14%, #00f 71.42%, #e0e 85.71%, #f00 100%) 0% center / 200% auto;background-clip: text;-webkit-background-clip: text;text-fill-color: transparent;-webkit-text-fill-color: transparent;",
+  "markdown-header-coloring.backgroundColor": "background: rgba(67, 198, 172, 0.6); /* fallback for old browsers */ background: -webkit-linear-gradient(to left, rgba(67, 198, 172, 0.6), rgba(25, 22, 84, 0.6)); /* Chrome 10-25, Safari 5.1-6 */ background: linear-gradient(to left, rgba(67, 198, 172, 0.6), rgba(25, 22, 84, 0.6)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */",
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  },
+  "better-comments.tags": [
+    {
+      "tag": "!",
+      "color": "#0000ff",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "?",
+      "color": "#3498DB",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "//",
+      "color": "#474747",
+      "strikethrough": true,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "todo",
+      "color": "#FF8C00",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "*",
+      "color": "#98C379",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "红",
+      "color": "#ffffff",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#ff0000",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "黄",
+      "color": "#000000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#FFFF00",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "蓝",
+      "color": "#f9f9f9",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#0000ff",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "绿",
+      "color": "#000000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#00ff00",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "/",
+      "color": "#000000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#999999",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "-",
+      "color": "#000000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#ffffff",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "流程",
+      "color": "#000000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#FAD961",
+      "background-image": "linear-gradient(59deg, #FAD961 0%, #F76B1C 100%)",
+      "bold": false,
+      "italic": false
+    }
+  ],
+  "liveServer.settings.donotShowInfoMsg": true,
+  "liveServer.settings.root": "/html",
+  "editor.renderWhitespace": "all",
+  "tinymist.formatterMode": "typstyle",
+  "[typst]": {
+    "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?"
+  },
+  "git.autofetch": true,
+  "editor.unfoldOnClickAfterEndOfLine": true,
+  "window.openFoldersInNewWindow": "on",
+  "editor.defaultFoldingRangeProvider": "vscode.typescript-language-features",
+  "[typst-code]": {
+    "editor.wordSeparators": "`~!@#$%^&*()=+[{]}\\|;:'\",.<>/?"
+  },
+  "cSpell.blockCheckingWhenLineLengthGreaterThan": 100000,
+  "security.workspace.trust.untrustedFiles": "open",
+  "tailwindCSS.emmetCompletions": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.autoSave": "onWindowChange"
+}
+```
+
+### 第一：美化编辑器本身
+
+修改 `/C:/Users/qianjin/AppData/Roaming/Trae/User/settings.json`， `trae` 好象目前只有这一个配置文件，先配置插件市场地址
+
+```json filename="settings.json" switcher
+{
+  "application.extensionMarketUrl": "https://marketplace.visualstudio.com/vscode"
+}
+```
+
+```json filename="插件:Markdown Header Coloring" switcher
+{
+  // 插件市场配置
+  "application.extensionMarketUrl": "https://marketplace.visualstudio.com/vscode",
+
+  // 编辑器字体设置(英文为JetBrains Mono，中文为:微软雅黑)
+  "editor.fontFamily": "JetBrains Mono, 微软雅黑, monospace",
+  "editor.fontSize": 16,
+  "editor.fontLigatures": true,
+
+  // 终端字体设置
+  "terminal.integrated.fontFamily": "JetBrains Mono, 微软雅黑, monospace",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.lineHeight": 1.2,
+
+  // mdx文件当成.md文件，也支持插件markdown-header-coloring
+  "files.associations": {
+    "*.mdx": "markdown"
+  },
+
+  //插件详见： https://marketplace.visualstudio.com/items?itemName=satokaz.vscode-markdown-header-coloring
+  // 重启后生效
+  "markdown-header-coloring.userDefinedHeaderColor": {
+    "enabled": true,
+    "Header_1": {
+      "color": "#FFFFFF",
+      "backgroundColor": "background: #ff0000;",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    },
+    "Header_2": {
+      "color": "#FFFFFF",
+      "backgroundColor": "background: #86198f;",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    },
+    "Header_3": {
+      "color": "#FFFFFF",
+      "backgroundColor": "background: #c026d3;",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    },
+    "Header_4": {
+      "color": "#FFFFFF",
+      "backgroundColor": "background: #e879f9;",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    },
+    "Header_5": {
+      "color": "#000000",
+      "backgroundColor": "background: #22c55e;",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    },
+    "Header_6": {
+      "color": "#000000",
+      "backgroundColor": "background: #86efac; ",
+      "textDecoration": "font-weight: 400; font-size: 1em;"
+    }
+  }
+}
+```
+
+```json filename="插件:indent-rainbow" switcher
+  //插件详见： https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow
+   // Defining custom colors instead of default "Rainbow" for dark backgrounds.
+   "indentRainbow.colors": [
+    "rgba(21,128,61,0.5)",
+    "rgba(34,197,94,0.5)",
+    "rgba(217,249,157,0.5)",
+    "rgba(234,179,8,0.5)" ,
+    "rgba(253,224,71,0.5)" ,
+    "rgba(254,249,195,0.5)" ,
+    "rgba(192,38,211,0.5)" ,
+    "rgba(232,121,249 ,0.5)" ,
+    "rgba(245,208,254,0.5)"
+  ],
+
+  // The indent color if the number of spaces is not a multiple of "tabSize".
+  "indentRainbow.errorColor": "rgba(128,32,32,0.6)",
+
+  // The indent color when there is a mix between spaces and tabs.
+  // To be disabled this coloring set this to an empty string.
+  "indentRainbow.tabmixColor": "rgba(128,32,96,0.6)",
+```
+
+### 第二：代码补全、提高效率
+
+```json filename="插件:ES7+ React/Redux/React-Native snippets" switcher
+{
+  // 会自动补全react，如 rfc
+}
+```
+
+```json filename="插件:Tailwind CSS IntelliSense" switcher
+{
+  // 会自动补全tailwindcss的class
+}
+```
+
+### 第三：代码美化，方便阅读
+
+```bash filename="nodejs包:Prettier" switcher
+# prettier官网：https://prettier.io/
+# prettier之vscode插件地址： https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+# 第一步：先安装prettier
+pnpm add --save-dev --save-exact prettier
+node --eval "fs.writeFileSync('.prettierrc','{}\n')"
+node --eval "fs.writeFileSync('.prettierignore','# Ignore artifacts:\nbuild\ncoverage\n')"
+```
+
+```json filename="vscode插件:Prettier - Code formatter" switcher
+
+// 第二步：安装并配置vscode插件
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // 所有文件都使用prettier格式化
+  "editor.formatOnSave": true, // 保存时自动格式化
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit" // 保存时自动修复eslint错误
+  },
+
+  "[javascript]": { // js文件使用prettier格式化
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+
+    //jsonc 指的是 JSON with Comments（带注释的 JSON），它是 JSON 格式的扩展。与普通 JSON 相比，jsonc 有两大优势：
+    // 一是支持添加单行注释（以 // 开头）和多行注释（以 /* 开头、*/ 结尾）；
+    // 二是允许文件末尾存在多余的逗号。jsonc 常见于 Visual Studio Code 的配置文件，像 settings.json、launch.json 以及一些项目配置文件（如 tsconfig.json）等。
+  "[jsonc]": {// 限定哪些文件
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // 所有文件都使用prettier格式化
+  "editor.formatOnSave": true // 保存时自动格式化
+}
+
+```
+
+```json filename="插件的插件:prettier-plugin-tailwindcss" switcher
+//在prettierrc.json中添加(手工在项目根目录下创建)
+//插件地址： https://github.com/tailwindlabs/prettier-plugin-tailwindcss
+// pnpm add -D prettier-plugin-tailwindcss
+{
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
+```
+
+### 第四：代码检查，避免错误
+
+```bash filename="插件" switcher
+pnpm add -D eslint-config-prettier eslint-plugin-jsx-a11y eslint-plugin-prettier
+# eslint-config-prettier 是一个专门的 ESLint 配置，其作用是关闭那些与 Prettier 格式化规则存在冲突的 ESLint 规则
+# eslint-plugin-jsx-a11y 是一个专门用于检查 JSX 代码（主要在 React 项目中）可访问性（Accessibility，简称 a11y）问题的 ESLint 插件。它通过静态代码分析，帮助开发者在编码阶段发现并修复潜在的可访问性缺陷，确保应用对所有人（包括残障人士）都具有良好的可用性。
+# React 项目：搭配 eslint-plugin-react 和 eslint-plugin-react-hooks 使用。
+```
+
+```mjs filename="eslint.config.mjs 待注释" switcher
+import { FlatCompat } from "@eslint/eslintrc";
+
+const compat = new FlatCompat({
+  // import.meta.dirname is available after Node.js v20.11.0
+  baseDirectory: import.meta.dirname,
+});
+
+const eslintConfig = [
+  ...compat.config({
+    extends: [
+      "next",
+      "next/core-web-vitals",
+      "next/typescript",
+      "plugin:prettier/recommended",
+      "plugin:jsx-a11y/recommended",
+    ],
+    plugins: ["prettier", "jsx-a11y"],
+    rules: {
+      "prettier/prettier": [
+        "error",
+        {
+          trailingComma: "all",
+          semi: false,
+          tabWidth: 2,
+          singleQuote: true,
+          printWidth: 80,
+          endOfLine: "auto",
+          arrowParens: "always",
+          plugins: ["prettier-plugin-tailwindcss"],
+        },
+        {
+          usePrettierrc: false,
+        },
+      ],
+      "react/react-in-jsx-scope": "off",
+      "jsx-a11y/alt-text": "warn",
+      "jsx-a11y/aria-props": "warn",
+      "jsx-a11y/aria-proptypes": "warn",
+      "jsx-a11y/aria-unsupported-elements": "warn",
+      "jsx-a11y/role-has-required-aria-props": "warn",
+      "jsx-a11y/role-supports-aria-props": "warn",
+    },
+  }),
+];
+
+export default eslintConfig;
+```
+
+## ❸ 初步修改
+
+```tsx filename="src/app/layout.tsx 修改前" switcher
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+```tsx filename="src/app/layout.tsx 修改后" switcher
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "NextJs基础教程第01课",
+  description: "新建nextjs空项目",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="zh-CN">
+      <body
+        className={`antialiased`}
+        style={{
+          fontFamily:
+            "14px/1.5 Helvetica Neue,Helvetica,Arial,Microsoft Yahei,Hiragino Sans GB,Heiti SC,WenQuanYi Micro Hei,sans-serif",
+        }}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+```tsx filename="src/app/globals.css 修改后" switcher
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+自制字体
+1. 使用向量软件，如Adobe Illustrator或Inkscape，或coreldraw,figma等，创建一个svg文件。
+2. 使用 FontForge 或在线工具如 https://fontello.com/（我使用这个）、https://icomoon.io/ 等来生成 SVG 字体
+3. 将生成的字体文件（.ttf、.woff、.woff2 等）放置在项目的 public/fonts 目录下。
+ */
+@font-face {
+  font-family: "cs";
+  src: url("/fonts/changsha.eot");
+  src:
+    url("/fonts/changsha.eot#iefix") format("embedded-opentype"),
+    url("/fonts/changsha.woff") format("woff"),
+    url("/fonts/changsha.ttf") format("truetype"),
+    url("/fonts/changsha.svg") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+```
+
+```tsx filename="src/app/page.tsx 修改后" switcher
+export default function Home() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-teal-600">
+      <div
+        style={{ fontFamily: "cs" }}
+        className="shadow:2xl flex h-80 w-80 items-center justify-center rounded-full bg-teal-400 shadow-indigo-500/40"
+      >
+        <span className="relative mt-4 border-2 bg-amber-400 p-4 text-9xl text-cyan-800 backdrop-blur-2xl">
+          &#xe800;
+        </span>
+      </div>
+    </div>
+  );
+}
+```
+
+## ❹ 总结
+
+- 如何安装本地字库
+- 熟练 tailwindcss 使用(如何控制元素水平居中，中心居中，什么场合用到相对定位和绝对定位，w-srceen,h-screen,inset-0 的用法)
+
+## ❺ 课后作业及思考
+
+- 入口文件 `src/app/page.tsx` 可以改成其它名字吗，如 index.js 吗
+- 布局文件 `src/app/layout.tsx` 可以改成其它名字吗
+- src 目录名称可以改成其它名字吗，比如改为`src123`，怎么处理
+- public 目录名称可以改成其它名字吗，比如改为`public123`，怎么处理
+- 设计首页，熟悉 tailwindcss 的使用
+
+### 本节涉及到的命令有
+
+```bash
+pnpm dlx create-next-app@latest 01
+pnpm dlx tailwindcss init # 4.0以上暂时只能手动生成 tailwind.config.js
+```
+
+{/* ⓿ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴ */}

@@ -1,0 +1,96 @@
+---
+title: Zod验证库
+---
+
+以下是一个使用 Zod 进行数据验证的 TypeScript 示例。Zod 是一个强大的 TypeScript 模式声明和验证库，可以帮助你验证数据结构、解析数据类型并提供类型安全。
+
+```typescript
+import { z } from "zod";
+
+// 定义用户模式
+const UserSchema = z.object({
+  username: z.string().min(3), // 必填字段，字符串类型，至少3个字符
+
+  email: z.string().email().optional(), // 可选字段，字符串类型
+
+  role: z.enum(["user", "admin", "moderator"]).default("user"), // 可选字段，默认为 "user"
+
+  age: z.number().min(18).max(100), // 数字类型，范围在18到100之间
+
+  isPremium: z.boolean().default(false), // 布尔类型，默认为 false
+
+  hobbies: z.array(z.string()), // 字符串数组
+
+  address: z
+    .object({
+      street: z.string(),
+      city: z.string(),
+      zip: z.string().regex(/^\d{5}$/),
+    })
+    .optional(), // 可选的对象
+});
+
+// 解析和验证数据
+const validUserData = {
+  username: "john_doe",
+  email: "john@example.com",
+  age: 30,
+  hobbies: ["reading", "coding"],
+};
+
+// 安全解析（返回结果对象）
+const result = UserSchema.safeParse(validUserData);
+if (result.success) {
+  const user: z.infer<typeof UserSchema> = result.data;
+  console.log("有效的用户数据:", user);
+} else {
+  console.error("校验出错:", result.error.format());
+}
+
+// 直接解析（抛出错误）
+try {
+  const user = UserSchema.parse({
+    username: "joe",
+    age: 25,
+    hobbies: [],
+  });
+  console.log("Parsed user:", user);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error("Zod validation errors:", error.errors);
+  }
+}
+
+// 部分验证（用于表单输入等场景）
+const partialUserSchema = UserSchema.partial();
+const partialResult = partialUserSchema.safeParse({
+  username: "new_user",
+});
+console.log("Partial validation result:", partialResult);
+
+// 扩展模式
+const AdminSchema = UserSchema.extend({
+  role: z.literal("admin"),
+  permissions: z.array(z.string()),
+});
+
+// 转换数据
+const UserWithGreeting = UserSchema.transform((data) => ({
+  ...data,
+  greeting: `Hello, ${data.username}!`,
+}));
+
+console.log(UserWithGreeting.parse(validUserData).greeting);
+```
+
+这个示例展示了 Zod 的多种用法，包括：
+
+- 创建对象模式并定义字段验证规则
+- 处理可选字段和默认值
+- 使用 `safeParse` 进行安全验证
+- 使用 `parse` 直接解析数据（可能抛出错误）
+- 创建部分验证模式
+- 扩展现有模式
+- 数据转换
+
+你可以根据自己的需求调整这些示例，或者使用 Zod 的其他功能，如联合类型、交集类型、自定义验证器等。

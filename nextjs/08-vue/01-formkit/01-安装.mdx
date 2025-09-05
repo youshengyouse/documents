@@ -1,0 +1,251 @@
+---
+title: 安装
+---
+
+## 安装
+
+```bash filename="❶空vue项目" switcher
+
+# 当前目录 /www2024/4_tutorial/2025#
+pnpm create vue@latest formkit
+.../1978112fd42-2d77                     |   +1 +
+.../1978112fd42-2d77                     | Progress: resolved 1, reused 1, downloaded 0, added 1, done
+┌  Vue.js - The Progressive JavaScript Framework
+│
+◇  Select features to include in your project: (↑/↓ to navigate, space to select, a to toggle all, enter to confirm)
+│  TypeScript, JSX Support, Router (SPA development), Pinia (state management), Vitest (unit testing), End-to-End
+Testing, ESLint (error prevention), Prettier (code formatting)
+│
+◇  Select an End-to-End testing framework: (↑/↓ to navigate, enter to confirm)
+│  Playwright
+│
+◇  Install Oxlint for faster linting? (experimental)
+│  Yes
+
+Scaffolding project in /www2024/4_tutorial/2025/formkit...
+│
+└  Done. Now run:
+
+   cd formkit
+   pnpm install
+   pnpm format
+   pnpm dev
+
+| Optional: Initialize Git in your project directory with:
+
+   git init && git add -A && git commit -m "第一次提交，新vue3项目"
+```
+
+```ts filename="❷安装tailwind" switcher
+// pnpm add tailwindcss @tailwindcss/vite
+// 修改 vite.config.ts
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import tailwindcss from '@tailwindcss/vite' //[!code ++]
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue(), vueJsx(), vueDevTools(), tailwindcss()], // 添加tailwindcss()
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+})
+```
+
+```css filename="❸样式" switcher
+/* src/assets/main.css
+@import 'tailwindcss' source(none);
+@source "../../formkit.theme.ts";
+@source "../components";
+@source '../views/**/*.vue';
+*/
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+/* 定义了一个名为 dark 的自定义变体，它会匹配所有带有 .dark 类的元素内部的所有元素。*/
+@config "../../tailwind.config.js";
+/* 经测试，在tailwind4中无须加上面这句@config，也就是无须新建tailwind.config.js文件，会自动处理 formkit.theme.ts文件。*/
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-border-red: var(--border-red);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --background: oklch(0.99 0.02 145);
+  --foreground: oklch(0.147 0.004 49.25);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 49.25);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.147 0.004 49.25);
+  --primary: oklch(0.216 0.006 56.043);
+  --primary-foreground: oklch(0.985 0.001 106.423);
+  --secondary: oklch(0.97 0.001 106.424);
+  --secondary-foreground: oklch(0.216 0.006 56.043);
+  --muted: oklch(0.97 0.001 106.424);
+  --muted-foreground: oklch(0.553 0.013 58.071);
+  --accent: oklch(0.65 0.2 145);
+  --accent-foreground: oklch(0.216 0.006 56.043);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.923 0.003 48.717);
+  --border-red: oklch(0.5493 0.131 26.86);
+  --input: oklch(0.923 0.003 48.717);
+  --ring: oklch(72.3% 0.219 149.579);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.973 0.036 142.742);
+  --sidebar-foreground: oklch(0.147 0.004 49.25);
+  --sidebar-primary: oklch(0.216 0.006 56.043);
+  --sidebar-primary-foreground: oklch(0.985 0.001 106.423);
+  --sidebar-accent: oklch(0.9 0.05 145);
+  --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
+  --sidebar-border: oklch(0.923 0.003 48.717);
+  --sidebar-ring: oklch(0.709 0.01 56.259);
+}
+
+.dark {
+  --background: oklch(0.35 0.008 145);
+  --foreground: oklch(0.92 0.003 145);
+  --card: oklch(0.32 0.006 145);
+  --card-foreground: oklch(0.92 0.003 145);
+  --popover: oklch(0.32 0.006 145);
+  --popover-foreground: oklch(0.92 0.003 145);
+  --primary: oklch(0.92 0.003 145);
+  --primary-foreground: oklch(0.216 0.006 56.043);
+  --border-red: oklch(0.5493 0.131 26.86);
+  --secondary: oklch(0.4 0.01 145);
+  --secondary-foreground: oklch(0.92 0.003 145);
+  --muted: oklch(0.38 0.008 145);
+  --muted-foreground: oklch(0.75 0.005 145);
+  --accent: oklch(0.6 0.08 145);
+  --accent-foreground: oklch(0.92 0.003 145);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.45 0.01 145);
+  --input: oklch(0.45 0.01 145);
+  --ring: oklch(72.3% 0.15 149.579);
+  --sidebar: oklch(0.25 0.008 145);
+  --sidebar-foreground: oklch(0.92 0.003 145);
+  --sidebar-primary: oklch(0.7 0.05 145);
+  --sidebar-primary-foreground: oklch(0.92 0.003 145);
+  --sidebar-accent: oklch(0.5 0.01 145);
+  --sidebar-accent-foreground: oklch(0.92 0.003 145);
+  --sidebar-border: oklch(0.3 0.008 145);
+  --sidebar-ring: oklch(0.6 0.05 145);
+}
+/* @layer优先级顺序为：utilities > components >base*/
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+
+```
+
+```bash filename="❹ 安装formkit包" switcher
+pnpm add @formkit/core @formkit/vue
+Packages: +10
+++++++++++
+Progress: resolved 485, reused 423, downloaded 10, added 10, done
+
+dependencies:
++ @formkit/core 1.6.9
++ @formkit/vue 1.6.9
+```
+
+```bash filename="❺安装官方主题" switcher
+# pnpm dlx formkit@latest theme (不建议)
+# https://themes.formkit.com/editor 在线提前设计表单样式，后点击 download theme
+# 建议使用下面的命令，提前设计好样式，然后下载到本地
+# pnpm dlx formkit@latest theme --theme=regenesis --variables="radius=rounded,accentColor=green,colorTemperature=slate,spacing=2,scale=base,inputShadow=shadow,baseColorShade=600,borderShadeLightMode=300,borderShadeDarkMode=500,inputMaxWidth=max-w-[20em],tagRadius=rounded,swatchRadius=rounded"
+
+Packages: +213
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 214, reused 213, downloaded 0, added 213, done
+Locating regenesis...
+Fetching theme from themes.formkit.com
+⚡️ building theme: regenesis
+Theme file written to formkit.theme.ts
+
+# 生成文件 formkit.theme.ts
+```
+
+```ts filename="❻formkit配置" switcher
+// 先新建配置文件 formkit.config.ts
+// pnpm dlx formkit@latest theme
+// pnpm add @formkit/icons
+// pnpm add @formkit/i18n
+import { genesisIcons } from '@formkit/icons'
+import { rootClasses } from './formkit.theme'
+import { zh, en } from '@formkit/i18n'
+import { defaultConfig } from '@formkit/vue'
+
+export default defaultConfig({
+  locales: { zh, en },
+  locale: 'zh',
+  icons: {
+    ...genesisIcons,
+  },
+  config: {
+    rootClasses,
+  },
+})
+```
+
+```ts filename="❼修改main.ts" switcher
+import './assets/main.css'
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import App from './App.vue'
+import router from './router'
+import { plugin, defaultConfig } from '@formkit/vue' //[!code ++] 导入
+import config from '../formkit.config.ts' //[!code ++] 导入formkit配置文件
+const app = createApp(App)
+app.use(plugin, defaultConfig(config)) //[!code ++] 插件
+app.use(createPinia())
+app.use(router)
+app.mount('#app')
+```
+
+## 第一个表单

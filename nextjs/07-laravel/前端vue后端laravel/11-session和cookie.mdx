@@ -1,0 +1,139 @@
+---
+title: session和cookie
+---
+
+## session和cookie
+
+为了便于理解，对代码做以下修改
+
+- 中间件 `Illuminate\Cookie\Middleware\EncryptCookies`是web中间件组中的第1个，这样确保request中的cookie是第一时间解密，response中的cookie是最后加密。
+
+```php filename="修改会话cookie名及id" switcher
+// 修改1：修改会话cookie名
+// 修改config/session.php中的cookie值，实际修改.env中的SESSION_COOKIE值
+'cookie' => env('SESSION_COOKIE',Str::slug(env('APP_NAME', 'laravel'), '_').'_session'),
+
+// 修改2：修改driver,默认为database，改为file，这样session数据会存放在storage/framework/sessions目录下,便于研究
+// 修改.env为SESSION_DRIVER=file
+'driver' => env('SESSION_DRIVER', 'database'),
+// 上面储存的是serialize序列化后的字符串
+```
+
+```php filename="方便查看session中的内容" switcher
+// 修改 \Illuminate\Session\Store::save
+  public function save()
+    {
+        $this->ageFlashData();
+
+        $this->prepareErrorBagForSerialization();
+
+        $this->handler->write($this->getId(), $this->prepareForStorage(
+            $this->serialization === 'json' ? json_encode($this->attributes) : serialize($this->attributes)
+        ));
+
+        file_put_contents('2025sessions.php','<?php return ' . var_export($this->attributes, true) . ';',FILE_APPEND); //加上这一行，只是为了方便查看session中的内容
+
+        $this->started = false;
+    }
+```
+
+```php filename="不加密cookie" switcher
+
+//==== 方法一【不推荐】：修改 Illuminate\Cookie\Middleware\EncryptCookies 中的handle方法
+   public function handle($request, Closure $next)
+    {
+        // 关闭 cookie加密
+//        return $this->encrypt($next($this->decrypt($request)));
+        return $next($request);
+    }
+
+
+//==== 方法二：创建一个中间件，将中间件加到web路由组中
+// php artisan make:middleware EncryptCookies
+// laravel12改变比较大，文档中没有查到如何向web路由组添加中间件，我是参考这篇文章，
+// 才学会将中间件加到web中,https://sandeeppant.medium.com/middleware-in-laravel-12-a-step-by-step-guide-4d70a2395019
+namespace App\Http\Middleware;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class EncryptCookies extends  \Illuminate\Cookie\Middleware\EncryptCookies
+{
+    /**
+     * 研究阶段，会话和 xsrf-token这两个cookie不加密
+     */
+    // 方法一【推荐】
+    protected $except = ["store-session-id",'XSRF-TOKEN'];
+
+    // 方法二：重写 handle,优点是不用将会话cookie的名字写死
+//    public function handle($request, Closure $next): Response
+//    {
+//        $this->disableFor([app('session.store')->getName(), 'XSRF-TOKEN']);
+//        return parent::handle($request,  $next);
+//    }
+}
+
+// bootstrap/app.php
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web([],[],[],[EncryptCookies::class=>\App\Http\Middleware\EncryptCookies::class]); //替换web中的中间件
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+
+
+//==== 方法三【推荐】：不用新建中间件，直接在Illuminate\Cookie\Middleware\EncryptCookies上处理
+// app/Providers/AppServiceProvider.php
+    public function register(): void
+    {
+        $this->app->afterResolving(\Illuminate\Cookie\Middleware\EncryptCookies::class,function ($instance,$app){
+            $instance->disableFor([app('session.store')->getName(), 'XSRF-TOKEN']);
+        });
+    }
+```
+
+## 过期时间
+
+<Image src="/vue_and_laravel/7.png" width={600} height={400} />
+Z表示协调世界时（UTC），又称格林尼治标准时间（GMT），北京时间+8小时。{' '}
+
+`2025-06-13T07:07:44.188Z`的意思是，北京时间
+`2025年6月13日15点7分44秒`，就过期了，本来会话cookie是不设过期时间的，但在laravel中使用普通cookie来处理会话，设置了过期时间。在过期时间之前，不管浏览器关闭与否，会话id都不会改变，也就是session不会失效。但是在过期时间之后，会话id会改变，会话就会失效。重新生成一个会话id(40位字符串)。
+
+会话cookie和xsrf-token这两个cookie过期时间是一样的。
+
+## 用户登录后session
+
+```php
+return array (
+  '_token' => 'fF0gDlj6iN7S24n3BVYZG8JBJ3jY4rrucmLpRT9P',
+  '_previous' =>   array (
+        'url' => 'http://backend.laravel:8000/sanctum/csrf-cookie',
+    ),
+  '_flash' =>   array (
+    'old' =>     array (    ),
+    'new' =>     array (    ),
+  ),
+  // 前面3个是laravel自带的，以_开头
+  // 用户登录后，会添加一个session，值为用户id
+  'login_web_59ba36addc2b2f9401580f014c7f58ea4e30989d' => 2,
+
+//    public function getName()
+//     {
+//         return 'login_'.$this->name.'_'.sha1(static::class);
+//     }
+);
+```
+
+## 前端419错误
+
+- 打开浏览器，查看xsrf-token这个cookie的domain的值与请求的url是否一致，即使请求的127.0.0.1但cookie的domain值为 localhost，也会报419错误。
+- axios请求时，需要添加`withCredentials: true`，这样才能携带cookie。
+- 后端是否去掉了cookie加密。我出现过这个问题。

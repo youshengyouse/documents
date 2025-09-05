@@ -1,0 +1,65 @@
+---
+title: 前端-axios准备
+---
+
+# 前端-axios准备
+
+```bash filename="frontend/env.local" switcher
+NEXT_PUBLIC_API_URL="https://localhost:8000"
+# NEXT_PUBLIC_API_URL="https://nextjs.tutorial" # 生产环境
+```
+
+```ts filename="frontend/src/lib/axios.ts" switcher
+import Axios from 'axios'
+const axios = Axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 10000,
+  headers: {
+    'X-Request-With': 'XMLHttpRequest', //axios不会自动添加 X-Requested-With 头,当值为 XMLHttpRequest 时，表示请求是通过 XMLHttpRequest 对象（即 AJAX）发起的。服务器可据此判断是否为异步请求，并返回适当的数据格式（如 JSON 而非 HTML）。后端框架（如 Express、Django、Rails,php 等）可根据此头调整响应行为。例如：返回 JSON 数据而非重定向页面。简化 AJAX 请求的错误处理（如返回错误状态码而非 HTML 错误页）。结合其他机制（如 CSRF Token），可增强请求来源的合法性验证（但不可单独依赖此字段，因其容易被伪造）。
+  },
+  // 全局设置 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+  // 单个请求设置:axios.get('/api/data', { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+
+  // Laravel 的 Illuminate\Http\Request 对象内置了 ajax() 方法，自动检测 X-Requested-With 头：
+  // if ($request->ajax()) {
+  // // 返回 JSON 响应（AJAX 请求）
+  //      return response()->json(['data' => '...']);
+  // } else {
+  // // 返回视图（普通请求）
+  //      return view('page');
+  // }
+  withCredentials: true, // 在 HTTP 请求中设置 withCredentials: true 的作用是允许跨域请求携带凭据（如 Cookies、HTTP 认证信息等）。浏览器默认禁止跨域请求（CORS）发送凭据（Cookies、Authorization Headers 等），这是出于安全考虑。
+  //开启 withCredentials: true,浏览器会：在跨域请求中携带凭据（如 Cookies）。允许服务器通过响应头 Access-Control-Allow-Credentials: true 确认接收凭据。
+  // 适用场景
+  // 跨域身份验证
+  // 前端（如 https://frontend.com）请求后端 API（如 https://api.com）时，需要传递登录态 Cookie。
+
+  // 共享认证信息
+  // 需要将客户端的认证凭据（如 JWT Token）通过 Cookies 或 Headers 发送到另一个域的服务器。
+
+  // Axios 中全局设置 axios.defaults.withCredentials = true;
+  // 单个请求中设置 axios.get("https://api.com/data", {  withCredentials: true});
+  // Fetch API 中设置，fetch("https://api.com/data", {  credentials: "include" // 等效于 withCredentials: true });
+
+  // 服务器端必须配合的配置
+  // 第一：服务器端必须设置 Access-Control-Allow-Credentials: true 允许前端域发送凭据。
+  // 第二：服务器端必须设置 Access-Control-Allow-Origin: https://frontend.com 允许前端域访问。不能使用通配符 * 指定允许的域
+  // 服务器端必须设置 Access-Control-Allow-Headers: X-Requested-With 允许前端域发送 X-Requested-With 头。
+
+  // 前端发送请求：axios.get("https://api.com/user", {  withCredentials: true});
+  // 服务器响应头配置：
+  // Access-Control-Allow-Origin: https://frontend.com
+  // Access-Control-Allow-Credentials: true
+  // Set-Cookie: session_id=abc123; Secure; SameSite=None
+
+  //   安全性注意事项
+  // CSRF 攻击风险 跨域携带凭据可能被恶意网站利用，需配合 CSRF Token 等机制防护。
+  // Cookie 属性要求 跨域 Cookie 需设置 SameSite=None; Secure（仅限 HTTPS）。
+  withXSRFToken: true, // 默认值为 true，可以不用设置
+  // 当设置为 true 时，客户端会从 Cookie 中读取 CSRF 令牌（默认名为 XSRF-TOKEN）并自动将其添加到请求头中（默认头名为 X-XSRF-TOKEN）,后端通过验证请求头中的 CSRF 令牌与 Cookie 中的值是否一致，确保请求来自合法来源。Axios 默认启用 CSRF 令牌自动携带（无需显式设置 withXSRFToken）。
+  // 从 Cookie 中读取 XSRF-TOKEN。
+  // 将 XSRF-TOKEN 添加到请求头中（默认头名为 X-XSRF-TOKEN）。
+  // 后端验证请求头中的 X-XSRF-TOKEN 与 Cookie 中的 XSRF-TOKEN 是否一致。
+})
+export default axios
+```

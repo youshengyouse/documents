@@ -1,0 +1,139 @@
+---
+title: 本地安装laravel框架
+date: 2021-06-15 16:00:00
+tags: ['laravel', 'vue', 'axios']
+---
+
+要克隆Laravel框架并创建一个用于添加注释的分支，同时保持与上游仓库同步，可以按照以下步骤操作：
+
+## ❶克隆官方仓库到本地
+
+### 1. 克隆官方仓库到本地
+
+```bash filename="克隆laravel/framework" switcher
+# git clone git@github.com:laravel/framework.git laravel-framework-20250607
+git clone githubyoushengyouse:laravel/framework.git laravel-framework-20250607 # 我因为要登录多个账户
+cd laravel-framework-20250607
+```
+
+```bash filename=".ssh/config" switcher
+Host youshengyouse
+  HostName gitee.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_2
+  PreferredAuthentications publickey
+  #IdentitiesOnly yes
+
+Host chinabangong
+  HostName gitee.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_1
+  PreferredAuthentications publickey
+  #IdentitiesOnly yes
+
+Host githubyoushengyouse
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_2
+  PreferredAuthentications publickey
+  #IdentitiesOnly yes
+```
+
+### 2. 添加上游仓库（用于同步官方更新）
+
+```bash
+git remote add upstream githubyoushengyouse:laravel/framework.git
+```
+
+### 3. 创建注释分支并切换
+
+```bash
+git checkout -b notes 12.x
+```
+
+### 4. 在源码中添加注释和笔记
+
+直接在本地文件中添加注释，例如：
+
+```php
+/**
+ * 这是一个示例注释
+ * 此方法用于处理请求验证逻辑
+ */
+public function validate(Request $request)
+{
+    // 原代码...
+}
+```
+
+### 5. 提交本地注释
+
+```bash
+git add .
+git commit -m "添加注释和笔记"
+```
+
+### 6. 定期同步官方更新
+
+```bash
+# 拉取上游更新
+git fetch upstream
+
+# 切换到主分支
+git checkout 12.x
+
+# 合并上游更新
+git merge upstream/12.x
+
+# 切换回注释分支
+git checkout notes
+
+# 将主分支更新合并到注释分支
+git merge 12.x
+```
+
+### 7. 保持本地分支与远程同步
+
+```bash
+# 推送注释分支到你的GitHub（首次需要设置跟踪）
+git push -u origin notes
+
+# 后续更新直接推送
+git push
+```
+
+### 关键操作说明：
+
+- **上游同步**：通过`upstream`远程仓库保持与官方代码同步
+- **分支管理**：`12.x`分支保持纯净，`notes`分支用于添加注释
+- **提交策略**：注释提交不影响代码功能，仅作为个人笔记
+
+这样操作可以确保你的注释分支始终基于最新的官方代码，同时不会干扰原始功能。如果需要查看官方最新代码，只需切换到`main`分支即可。
+
+## ❷本地安装laravel框架
+
+考虑到会用到 laravel/sanctum 和 laravel/fortify 这两个包，也本地安装
+
+```bash
+# 当前目录 /www2024/0_common/php/laravel
+git clone githubyoushengyouse:laravel/fortify.git
+git clone githubyoushengyouse:laravel/sanctum.git
+```
+
+```bash
+composer config repositories.laravel  '{"type":"path","url":"/www2024/0_common/php/laravel/**/","options":{"symlink":true}}'
+composer config minimum-stability dev
+// "minimum-stability": "stable",
+```
+
+```json
+"require": {
+    "php": "^8.2",
+    "laravel/fortify": "^1.25",
+    "laravel/framework": "notes", // [\!code highlight]
+    "laravel/sanctum": "^4.0",
+    "laravel/tinker": "^2.10.1"
+},
+```
+
+删除 vendor目录和 composer.lock文件,后再执行 `composer install`，其中framework安装的是notes分支,

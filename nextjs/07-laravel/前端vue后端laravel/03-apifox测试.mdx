@@ -1,0 +1,69 @@
+---
+title: apifox测试
+date: 2021-06-15 16:00:00
+tags: ['laravel', 'vue', 'axios']
+---
+
+## 注册
+
+<Image src="/vue_and_laravel/2.png" width={600} height={400} />
+上图点击发送按钮，会报419错误，原因是laravel后台，除了 `head、get、options`三个请求方法之外，都会验证csrf_token，所以需要在请求头中添加`X-CSRF-TOKEN`字段，具体查看`\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::handle`，
+
+## 配置api
+
+<Image src="/vue_and_laravel/3.png" width={600} height={400} />
+
+```php filename="public/index.php" switcher
+// http://127.0.0.1:8000/api/register
+
+// public/index.php 查看全局和路由中间件
+
+//app()->rebinding(   'request',function ($app){
+//    可以查看 应用bootstrap 之前的的内容
+//});
+
+app('events')->listen("bootstrapped: Illuminate\Foundation\Bootstrap\BootProviders",function($app){
+    dump("全局中间件：");
+    dump($app->get(Illuminate\Contracts\Http\Kernel::class)->getGlobalMiddleware());
+});
+app('events')->listen(Illuminate\Routing\Events\RouteMatched::class,function($event){
+    dump('路由器(middlewareGroups/web)');
+    dump(app('router'));
+    dump('当前匹配路由');
+    dump(app('router')->current());
+});
+
+//\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::handle
+```
+
+```js filename="apifox中前置操作" switcher
+pm.sendRequest(
+  {
+    url: 'http://127.0.0.1:8000/sanctum/csrf-cookie',
+    method: 'GET',
+  },
+  function (err, response) {
+    if (!err && response.code === 204) {
+      const headers = response.headers.members
+      let xsrfToken = ''
+      for (const key in headers) {
+        if (headers.hasOwnProperty(key)) {
+          // 可选：过滤原型链属性
+          const item = headers[key]
+          if (item.key == 'Set-Cookie') {
+            const match = item.value.match(/XSRF-TOKEN=([^;]+)/i)
+            if (match && match[1]) {
+              xsrfToken = match[1].trim() // 去除值前后的空格
+              break // 找到后立即停止遍历
+            }
+          }
+        }
+      }
+      console.log('xsrf口令的值为', xsrfToken)
+      pm.environment.set('abc', decodeURIComponent(xsrfToken))
+    } else {
+      console.error('未找到 XSRF-TOKEN Cookie')
+    }
+  }
+)
+```

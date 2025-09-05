@@ -1,0 +1,1032 @@
+---
+title: Laravel 12 + Vue + Spatie Roles & Permissions
+---
+## 参考文章和视频
+- 文章：https://www.souysoeng.com/2025/06/laravel-12-inertiajs-vuejs-crud-tutorial.html
+- 文章：https://www.kritimyantra.com/blogs/laravel-12-crud-application-with-vue-inertiajs-tailwind-css
+- 本教程组件来自：https://shadcn-vue.com/
+## 准备
+
+```bash filename="空laravel项目" switcher
+root@pan:/www2024/4_tutorial/2025# laravel new larave-vue-acl
+
+   _                               _
+  | |                             | |
+  | |     __ _ _ __ __ ___   _____| |
+  | |    / _` |  __/ _` \ \ / / _ \ |
+  | |___| (_| | | | (_| |\ V /  __/ |
+  |______\__,_|_|  \__,_| \_/ \___|_|
+
+
+ ┌ Which starter kit would you like to install? ────────────────┐
+ │ Vue                                                          │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Which authentication provider do you prefer? ────────────────┐
+ │ Laravel's built-in authentication                            │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Which testing framework do you prefer? ──────────────────────┐
+ │ Pest                                                         │
+ └──────────────────────────────────────────────────────────────┘
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+Creating a "laravel/vue-starter-kit" project at "./larave-vue-acl"
+Installing laravel/vue-starter-kit (v1.0.2)
+  - Downloading laravel/vue-starter-kit (v1.0.2)
+  - Installing laravel/vue-starter-kit (v1.0.2): Extracting archive
+Created project in /www2024/4_tutorial/2025/larave-vue-acl
+> @php -r "file_exists('.env') || copy('.env.example', '.env');"
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 112 installs, 0 updates, 0 removals
+  - Locking brick/math (0.13.1)
+ # 略
+  - Locking webmozart/assert (1.11.0)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 112 installs, 0 updates, 0 removals
+  - Downloading symfony/deprecation-contracts (v3.6.0)
+  # 略
+  - Installing tightenco/ziggy (v2.5.3): Extracting archive
+45 package suggestions were added by new dependencies, use `composer suggest` to see details.
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  inertiajs/inertia-laravel ......................................................................... DONE
+  laravel/pail ...................................................................................... DONE
+  laravel/sail ...................................................................................... DONE
+  laravel/tinker .................................................................................... DONE
+  nesbot/carbon ..................................................................................... DONE
+  nunomaduro/collision .............................................................................. DONE
+  nunomaduro/termwind ............................................................................... DONE
+  tightenco/ziggy ................................................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+> @php artisan key:generate --ansi
+
+   INFO  Application key set successfully.
+
+> @php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+> @php artisan migrate --graceful --ansi
+
+   INFO  Preparing database.
+
+  Creating migration table .................................................................. 16.72ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000000_create_users_table ...................................................... 23.41ms DONE
+  0001_01_01_000001_create_cache_table ....................................................... 6.75ms DONE
+  0001_01_01_000002_create_jobs_table ....................................................... 21.23ms DONE
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+> @php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+   INFO  Application key set successfully.
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+./composer.json has been updated
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+Using version ^3.8 for pestphp/pest
+Using version ^3.2 for pestphp/pest-plugin-laravel
+./composer.json has been updated
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 14 installs, 1 update, 0 removals
+  - Locking brianium/paratest (v7.8.3)
+  - Locking doctrine/deprecations (1.1.5)
+  - Locking fidry/cpu-core-counter (1.2.0)
+  - Locking jean85/pretty-package-versions (2.1.1)
+  - Locking pestphp/pest (v3.8.2)
+  - Locking pestphp/pest-plugin (v3.0.0)
+  - Locking pestphp/pest-plugin-arch (v3.1.1)
+  - Locking pestphp/pest-plugin-laravel (v3.2.0)
+  - Locking pestphp/pest-plugin-mutate (v3.0.5)
+  - Locking phpdocumentor/reflection-common (2.2.0)
+  - Locking phpdocumentor/reflection-docblock (5.6.2)
+  - Locking phpdocumentor/type-resolver (1.10.0)
+  - Locking phpstan/phpdoc-parser (2.1.0)
+  - Downgrading phpunit/phpunit (11.5.23 => 11.5.15)
+  - Locking ta-tikoma/phpunit-architecture-test (0.8.5)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 14 installs, 1 update, 0 removals
+  - Downloading pestphp/pest-plugin (v3.0.0)
+  - Downloading phpunit/phpunit (11.5.15)
+  - Downloading jean85/pretty-package-versions (2.1.1)
+  - Downloading fidry/cpu-core-counter (1.2.0)
+  - Downloading brianium/paratest (v7.8.3)
+  - Downloading phpstan/phpdoc-parser (2.1.0)
+  - Downloading phpdocumentor/reflection-common (2.2.0)
+  - Downloading doctrine/deprecations (1.1.5)
+  - Downloading phpdocumentor/type-resolver (1.10.0)
+  - Downloading phpdocumentor/reflection-docblock (5.6.2)
+  - Downloading ta-tikoma/phpunit-architecture-test (0.8.5)
+  - Downloading pestphp/pest-plugin-arch (v3.1.1)
+  - Downloading pestphp/pest-plugin-mutate (v3.0.5)
+  - Downloading pestphp/pest (v3.8.2)
+  - Downloading pestphp/pest-plugin-laravel (v3.2.0)
+  - Installing pestphp/pest-plugin (v3.0.0): Extracting archive
+  - Downgrading phpunit/phpunit (11.5.23 => 11.5.15): Extracting archive
+  - Installing jean85/pretty-package-versions (2.1.1): Extracting archive
+  - Installing fidry/cpu-core-counter (1.2.0): Extracting archive
+  - Installing brianium/paratest (v7.8.3): Extracting archive
+  - Installing phpstan/phpdoc-parser (2.1.0): Extracting archive
+  - Installing phpdocumentor/reflection-common (2.2.0): Extracting archive
+  - Installing doctrine/deprecations (1.1.5): Extracting archive
+  - Installing phpdocumentor/type-resolver (1.10.0): Extracting archive
+  - Installing phpdocumentor/reflection-docblock (5.6.2): Extracting archive
+  - Installing ta-tikoma/phpunit-architecture-test (0.8.5): Extracting archive
+  - Installing pestphp/pest-plugin-arch (v3.1.1): Extracting archive
+  - Installing pestphp/pest-plugin-mutate (v3.0.5): Extracting archive
+  - Installing pestphp/pest (v3.8.2): Extracting archive
+  - Installing pestphp/pest-plugin-laravel (v3.2.0): Extracting archive
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  inertiajs/inertia-laravel ......................................................................... DONE
+  laravel/pail ...................................................................................... DONE
+  laravel/sail ...................................................................................... DONE
+  laravel/tinker .................................................................................... DONE
+  nesbot/carbon ..................................................................................... DONE
+  nunomaduro/collision .............................................................................. DONE
+  nunomaduro/termwind ............................................................................... DONE
+  pestphp/pest-plugin-laravel ....................................................................... DONE
+  tightenco/ziggy ................................................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+
+   INFO  Preparing tests directory.
+
+  phpunit.xml ....................................................................... File already exists.
+  tests/Pest.php .................................................................... File already exists.
+  tests/TestCase.php ................................................................ File already exists.
+  tests/Unit/ExampleTest.php ........................................................ File already exists.
+  tests/Feature/ExampleTest.php ..................................................... File already exists.
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+./composer.json has been updated
+Running composer update pestphp/pest-plugin-drift
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 1 install, 0 updates, 0 removals
+  - Locking pestphp/pest-plugin-drift (v3.0.0)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 1 install, 0 updates, 0 removals
+  - Downloading pestphp/pest-plugin-drift (v3.0.0)
+  - Installing pestphp/pest-plugin-drift (v3.0.0): Extracting archive
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  inertiajs/inertia-laravel ......................................................................... DONE
+  laravel/pail ...................................................................................... DONE
+  laravel/sail ...................................................................................... DONE
+  laravel/tinker .................................................................................... DONE
+  nesbot/carbon ..................................................................................... DONE
+  nunomaduro/collision .............................................................................. DONE
+  nunomaduro/termwind ............................................................................... DONE
+  pestphp/pest-plugin-laravel ....................................................................... DONE
+  tightenco/ziggy ................................................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+Using version ^3.0 for pestphp/pest-plugin-drift
+
+  ✔✔✔✔✔✔✔✔✔✔
+
+   INFO  The [tests] directory has been migrated to PEST with 10 files changed.
+
+Do not run Composer as root/super user! See https://getcomposer.org/root for details
+Continue as root/super user [yes]?
+./composer.json has been updated
+Running composer update pestphp/pest-plugin-drift
+Loading composer repositories with package information
+Updating dependencies
+Lock file operations: 0 installs, 0 updates, 1 removal
+  - Removing pestphp/pest-plugin-drift (v3.0.0)
+Writing lock file
+Installing dependencies from lock file (including require-dev)
+Package operations: 0 installs, 0 updates, 1 removal
+  - Removing pestphp/pest-plugin-drift (v3.0.0)
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+
+   INFO  Discovering packages.
+
+  inertiajs/inertia-laravel ......................................................................... DONE
+  laravel/pail ...................................................................................... DONE
+  laravel/sail ...................................................................................... DONE
+  laravel/tinker .................................................................................... DONE
+  nesbot/carbon ..................................................................................... DONE
+  nunomaduro/collision .............................................................................. DONE
+  nunomaduro/termwind ............................................................................... DONE
+  pestphp/pest-plugin-laravel ....................................................................... DONE
+  tightenco/ziggy ................................................................................... DONE
+
+> @php artisan vendor:publish --tag=laravel-assets --ansi --force
+
+   INFO  No publishable resources for tag [laravel-assets].
+
+No security vulnerability advisories found.
+
+ ┌ Would you like to run npm install and npm run build? ────────┐
+ │ No                                                           │
+ └──────────────────────────────────────────────────────────────┘
+
+   INFO  Application ready in [larave-vue-acl]. You can start your local development using:
+
+➜ cd larave-vue-acl
+➜ npm install && npm run build
+➜ composer run dev
+
+  New to Laravel? Check out our documentation. Build something amazing!
+```
+
+```json filename="composer.json" switcher
+{
+  "$schema": "https://getcomposer.org/schema.json",
+  "name": "laravel/vue-starter-kit",
+  "type": "project",
+  "description": "The skeleton application for the Laravel framework.",
+  "keywords": ["laravel", "framework"],
+  "license": "MIT",
+  "require": {
+    "php": "^8.2",
+    "inertiajs/inertia-laravel": "^2.0",
+    "laravel/framework": "^12.0",
+    "laravel/tinker": "^2.10.1",
+    "tightenco/ziggy": "^2.4"
+  },
+  "require-dev": {
+    "fakerphp/faker": "^1.23",
+    "laravel/pail": "^1.2.2",
+    "laravel/pint": "^1.18",
+    "laravel/sail": "^1.41",
+    "mockery/mockery": "^1.6",
+    "nunomaduro/collision": "^8.6",
+    "pestphp/pest": "^3.8",
+    "pestphp/pest-plugin-laravel": "^3.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/",
+      "Database\\Factories\\": "database/factories/",
+      "Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+      "@php artisan package:discover --ansi"
+    ],
+    "post-update-cmd": [
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+    ],
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+    ],
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi",
+      "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+      "@php artisan migrate --graceful --ansi"
+    ],
+    "dev": [
+      "Composer\\Config::disableProcessTimeout",
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "dont-discover": []
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
+```
+
+```json filename="package.json" switcher
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "build:ssr": "vite build && vite build --ssr",
+    "dev": "vite",
+    "format": "prettier --write resources/",
+    "format:check": "prettier --check resources/",
+    "lint": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@vue/eslint-config-typescript": "^14.3.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.4.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "prettier-plugin-tailwindcss": "^0.6.9",
+    "typescript-eslint": "^8.23.0"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "@inertiajs/vue3": "^2.0.0-beta.3",
+    "@tailwindcss/forms": "^0.5.3",
+    "@types/node": "^22.10.2",
+    "@types/ziggy-js": "^1.3.3",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vueuse/core": "^12.0.0",
+    "autoprefixer": "^10.4.20",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.0.1",
+    "laravel-vite-plugin": "^1.0",
+    "lucide": "^0.468.0",
+    "lucide-vue-next": "^0.468.0",
+    "radix-vue": "^1.9.11",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss": "^3.4.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.2.2",
+    "vite": "^6.0.3",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0",
+    "ziggy-js": "^2.4.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5",
+    "@tailwindcss/oxide-linux-x64-gnu": "^4.0.1",
+    "lightningcss-linux-x64-gnu": "^1.29.1"
+  }
+}
+```
+
+```bash filename="数据库准备" switcher
+mysql -u root -p
+create database tutorial_laravel_vue_acl default character set utf8mb4 collate utf8mb4_unicode_ci;
+create user 'kongzi'@'localhost' identified by '1234rewq';
+grant all on tutorial_laravel_vue_acl.* to kongzi@localhost;
+
+# 修改 /www2024/4_tutorial/laravel/rest-api-2025-05-28/.env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tutorial_laravel_vue_acl
+DB_USERNAME=kongzi
+DB_PASSWORD=1234rewq
+
+# 数据迁移
+root@pan:/www2024/4_tutorial/2025/larave-vue-acl# php artisan migrate
+# 涉及表有8个
+# - users,password_reset_tokens,sessions
+# - cache,cache_lock
+# - jobs,job_batches,failed_jobs
+
+
+```
+
+```php filename="表解释" switcher
+// cache_locks
+// 尝试获取锁
+if (DB::table('cache_locks')->where('key', $key)->doesntExist()) {
+    DB::table('cache_locks')->insert([
+        'key' => $key,
+        'owner' => $owner,
+        'expires_at' => now()->addSeconds($seconds)
+    ]);
+    return true; // 获取锁成功
+}
+
+// 检查锁是否过期
+if (DB::table('cache_locks')->where('key', $key)->where('expires_at', '<', now())->exists()) {
+    DB::table('cache_locks')->where('key', $key)->delete();
+    return $this->acquireLock($key, $owner, $seconds); // 重新尝试获取锁
+}
+
+return false; // 锁被占用
+
+
+// 表 password_reset_tokens
+// 此表的存在是为了临时保存密码重置令牌。当用户发起重置密码的请求时，系统会生成一个对应的令牌，并将其存储在这张表中。随后，系统会把包含该令牌的链接发送到用户注册时使用的邮箱。用户点击链接后，系统会验证令牌的有效性，验证通过后，用户就能设置新密码了。
+// 生成并存储密码重置令牌
+$token = Str::random(64);
+DB::table('password_reset_tokens')->insert([
+    'email' => $request->email,
+    'token' => Hash::make($token),
+    'created_at' => now()
+]);
+
+// 发送包含重置链接的邮件
+Password::sendResetLink($request->only('email'));
+
+// 验证令牌
+public function reset(Request $request)
+{
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function (User $user, string $password) {
+            $user->forceFill([
+                'password' => Hash::make($password)
+            ])->setRememberToken(Str::random(60));
+
+            $user->save();
+
+            event(new PasswordReset($user));
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+                ? redirect()->route('login')->with('status', __($status))
+                : back()->withErrors(['email' => [__($status)]]);
+}
+```
+
+- 启动前端：`pnpm dev`
+- 启动服务： `php artisan serve`
+- 注册一个用户zhangsan@163.com/1234qwer测试，进入后台
+
+<Image src="/laravel_acl/1.png" width={600} height={400} />
+
+## 控制器+视图+路由
+
+```bash filename="新建User控制器" switcher
+php artisan make:controller UserController --resource
+# 生成 app/Http/Controllers/UserController.php
+# 7个方法：index,create,store,show,edit,update,destroy
+```
+
+```php filename="路由" switcher
+<?php
+
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+})->name('home');
+
+Route::get('dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+// 路由上中间件别名定义，改为在 \Illuminate\Foundation\Configuration\Middleware::defaultAliases 中定义
+
+Route::resource('users',UserController::class);
+// php artisan route:list 查看路由,7个路由对应7个资源方法
+// 一句话生成资源控制器，一句话定义路由
+
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';
+```
+
+### index 列表
+
+```php filename="后端 UserController::index()" switcher
+// \App\Http\Controllers\UserController::index
+    public function index()
+    {
+        // 常见错误：少写 return
+        return Inertia::render('Users/Index',[
+            "users"=>User::all()
+        ]);
+    }
+```
+
+```vue filename="Users/Index.vue➊" switcher
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types'
+import { Head } from '@inertiajs/vue3'
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: '用户',
+    href: '/users',
+  },
+]
+
+defineProps<{
+  users: Array<{
+    id: number
+    name: string
+    email: string
+  }>
+}>()
+</script>
+
+<template>
+  <Head title="用户" />
+
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="overflow-x-auto">
+      <table
+        class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+      >
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="px-6 py-3">ID</th>
+            <th scope="col" class="px-6 py-3">用户名</th>
+            <th scope="col" class="px-6 py-3">邮箱</th>
+            <th scope="col" class="px-6 py-3">动作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="user in users"
+            :key="user.id"
+            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
+          >
+            <td class="px-6 py-2 font-medium text-gray-900 dark:text-white">
+              {{ user.id }}
+            </td>
+            <td class="px-6 py-2 text-gray-600 dark:text-gray-300">
+              {{ user.name }}
+            </td>
+            <td class="px-6 py-2 text-gray-600 dark:text-gray-300">
+              {{ user.email }}
+            </td>
+            <td class="px-6 py-2">
+              <button
+                class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                编辑
+              </button>
+              <button
+                class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ml-1"
+              >
+                删除
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </AppLayout>
+</template>
+```
+
+```php filename="假数据" switcher
+// .env中修改 APP_LOCALE=zh_CN
+// /www2024/4_tutorial/2025/larave-vue-acl/database/seeders/DatabaseSeeder.php
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        // User::factory(10)->create();
+
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
+
+        User::factory()->count(250)->create();
+    }
+}
+// php artisan db:seed
+
+```
+
+```php filename="分页后端" switcher
+// \App\Http\Controllers\UserController::index
+    public function index()
+    {
+        // 常见错误：少写 return
+        return Inertia::render('Users/Index',[
+//            "users"=>User::all()
+            "users"=>User::paginate(20)
+        ]);
+    }
+
+// 前端分页使用第三方插件（放弃）： 安装 pnpm add laravel-vue-pagination,用法参考：https://laravel-vue-pagination.org/guide/quick-start.html
+// 参考：https://www.youtube.com/watch?v=azckDvCNwlM 手写
+```
+
+```json filename="传递数据" switcher
+{
+  "current_page": 1,
+  "data": [
+    {
+      "id": 1,
+      "name": "zhangsan",
+      "email": "zhangsan@163.com",
+      "email_verified_at": null,
+      "created_at": "2025-06-23T02:59:42.000000Z",
+      "updated_at": "2025-06-23T02:59:42.000000Z"
+    },
+    {
+      "id": 2,
+      "name": "Simone Stiedemann",
+      "email": "gerda28@example.com",
+      "email_verified_at": "2025-06-24T05:19:01.000000Z",
+      "created_at": "2025-06-24T05:19:02.000000Z",
+      "updated_at": "2025-06-24T05:19:02.000000Z"
+    },
+    略
+    {
+      "id": 20,
+      "name": "Dr. Jo O'Keefe",
+      "email": "cummerata.anais@example.com",
+      "email_verified_at": "2025-06-24T05:19:02.000000Z",
+      "created_at": "2025-06-24T05:19:02.000000Z",
+      "updated_at": "2025-06-24T05:19:02.000000Z"
+    }
+  ],
+  "first_page_url": "http://127.0.0.1:8000/users?page=1",
+  "from": 1,
+  "last_page": 13,
+  "last_page_url": "http://127.0.0.1:8000/users?page=13",
+  "links": [
+    {
+      "url": null,
+      "label": "&laquo; Previous",
+      "active": false
+    },
+    {
+      "url": "http://127.0.0.1:8000/users?page=1",
+      "label": "1",
+      "active": true
+    },
+
+    略
+
+    {
+      "url": "http://127.0.0.1:8000/users?page=13",
+      "label": "13",
+      "active": false
+    },
+    {
+      "url": "http://127.0.0.1:8000/users?page=2",
+      "label": "Next &raquo;",
+      "active": false
+    }
+  ],
+  "next_page_url": "http://127.0.0.1:8000/users?page=2",
+  "path": "http://127.0.0.1:8000/users",
+  "per_page": 20,
+  "prev_page_url": null,
+  "to": 20,
+  "total": 251
+}
+```
+
+```vue filename="Users/Index.vue➋" switcher
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types'
+import { Head, Link } from '@inertiajs/vue3'
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: '用户',
+    href: '/users',
+  },
+]
+
+// defineProps<{
+//     users: Array<{
+//         id: number;
+//         name: string;
+//         email: string;
+//     }>;
+// }>();
+defineProps({
+  users: Object,
+})
+</script>
+
+<template>
+  <Head title="用户" />
+
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="overflow-x-auto p-3">
+      <Link
+        :href="route('users.create')"
+        class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-green-700 rounded hover:bg-green-800 focus:ring-2 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+      >
+        添加用户
+      </Link>
+
+      <table
+        class="mt-3 w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+      >
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="px-6 py-3">ID</th>
+            <th scope="col" class="px-6 py-3">用户名</th>
+            <th scope="col" class="px-6 py-3">邮箱</th>
+            <th scope="col" class="px-6 py-3">动作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="user in users.data"
+            :key="user.id"
+            class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
+          >
+            <td class="px-6 py-2 font-medium text-gray-900 dark:text-white">
+              {{ user.id }}
+            </td>
+            <td class="px-6 py-2 text-gray-600 dark:text-gray-300">
+              {{ user.name }}
+            </td>
+            <td class="px-6 py-2 text-gray-600 dark:text-gray-300">
+              {{ user.email }}
+            </td>
+            <td class="px-6 py-2">
+              <button
+                class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                编辑
+              </button>
+              <button
+                class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-red-700 rounded-lg hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 ml-1"
+              >
+                删除
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="flex justify-between mt-4">
+        <div class="text-stone-400">
+          共<span class="text-green-500">{{ users.total }}</span
+          >，当前<span class="text-green-500"> {{ users.from }}</span
+          >-<span class="text-green-500">{{ users.to }}</span>
+        </div>
+        <div class="space-x-2">
+          <span
+            v-for="(link, index) in users.links"
+            :key="index"
+            class="inline-block"
+          >
+            <span class="text-stone-400" v-if="link.url === null">{{
+              link.label.includes('Next')
+                ? '▶'
+                : link.label.includes('Previous')
+                  ? '◀'
+                  : link.label
+            }}</span>
+            <Link
+              v-else
+              :href="link.url ? link.url : ''"
+              class="px-3 py-1  text-center border-stone-100 border-1 bg-stone-100 rounded"
+              :class="{ 'bg-green-500 text-white': link.active }"
+            >
+              {{
+                link.label.includes('Next')
+                  ? '▶'
+                  : link.label.includes('Previous')
+                    ? '◀'
+                    : link.label
+              }}
+
+              <!--
+              :class="{ 'bg-green-500 text-white': link.active }"
+              改为
+              :class="[link.active?'bg-green-500 text-white':'bg-stone-100']"
+               -->
+            </Link>
+          </span>
+        </div>
+      </div>
+    </div>
+  </AppLayout>
+</template>
+```
+```vue filename="tanstack table" switcher
+参考：https://www.youtube.com/watch?v=U6zYtCqdwNc
+参考：https://www.youtube.com/watch?v=qaXYtT_WJBw
+```
+
+```html filename="总结" switcher
+不滚动：<link preserve-scroll /><br />
+三元样式:class="[link.active ? 'bg-green-500 text-white' : 'bg-stone-100']"<br />
+倒序，分页<br />
+```
+
+### create+store 增
+
+```php filename="后端create()" switcher
+    public function create()
+    {
+        return Inertia::render('Users/Create');
+    }
+```
+
+```php filename="后端store($request)" switcher
+    public function store(Request $request)
+    {
+        $request->validate([
+            "name"=>"required|max:50",
+            "email"=> "required|email|max:255|unique:users",
+            "password"=> "required|min:6|max:255",
+        ]);
+        User::create($request->only("name","email")+["password"=>Hash::make($request->password)]);
+        return to_route("users.index"); // 又忘了写 return
+        //return redirect()->route("users.index")->with("success","添加 {$data['name']} 成功");
+    }
+```
+
+```vue filename="Users/Create.vue" switcher
+<script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue'
+import { type BreadcrumbItem } from '@/types'
+import { Head, Link, useForm } from '@inertiajs/vue3'
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: '添加用户',
+    href: '/users',
+  },
+]
+const form = useForm({
+  name: '', //key是字符串，引号不能少
+  email: '',
+  password: '',
+})
+</script>
+
+<template>
+  <Head title="添加用户" />
+
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="overflow-x-auto p-3">
+      <Link
+        :href="route('users.index')"
+        class="cursor-pointer px-3 py-2 text-xs font-medium text-white bg-green-700 rounded hover:bg-green-800 focus:ring-2 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+      >
+        返回
+      </Link>
+      <form
+        @submit.prevent="form.post(route('users.store'))"
+        className="space-y-6 mt-4 max-w-md mx-auto"
+      >
+        <!-- 用户名 -->
+        <div className="grid gap-2">
+          <label
+            for="name"
+            className="text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+          >
+            名字:
+          </label>
+          <input
+            id="name"
+            name="name"
+            v-model="form.name"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="输入名称"
+          />
+          <p v-if="form.errors.name" className="text-red-500 text-sm mt-1">
+            {{ form.errors.name }}
+          </p>
+        </div>
+        <!-- 邮箱 -->
+        <div className="grid gap-2">
+          <label
+            for="email"
+            className="text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+          >
+            邮箱:
+          </label>
+          <input
+            id="email"
+            name="email"
+            v-model="form.email"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="输入邮箱"
+          />
+          <p v-if="form.errors.email" className="text-red-500 text-sm mt-1">
+            {{ form.errors.email }}
+          </p>
+        </div>
+        <!-- 密码 -->
+        <div className="grid gap-2">
+          <label
+            for="password"
+            className="text-sm leading-none font-medium select-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+          >
+            密码:
+          </label>
+          <input
+            id="password"
+            name="password"
+            v-model="form.password"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base shadow-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="输入密码"
+          />
+          <p v-if="form.errors.password" className="text-red-500 text-sm mt-1">
+            {{ form.errors.password }}
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition"
+        >
+          添加
+        </button>
+      </form>
+    </div>
+  </AppLayout>
+</template>
+```
+```vue filename="信息提示" switcher
+
+```
+
+```vue filename="前端验证yup" switcher
+
+```
+
+
+
+### edit+update 改
+
+### destroy 删
+
+### show 查
+
+## 权限包(spatie/laravel-permission)
+
+```bash filename="安装包" switcher
+composer require spatie/laravel-permission
+# 生成迁移文件
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+# 执行迁移
+php artisan migrate
+# 生成权限模型
+php artisan make:permission Permission
+# 生成角色模型
+php artisan make:role Role
+# 生成用户模型
+php artisan make:user User
+```
+
+```
+
+```

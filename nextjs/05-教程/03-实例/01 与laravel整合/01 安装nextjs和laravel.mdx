@@ -1,0 +1,133 @@
+---
+title: 安装 nextjs 和 laravel
+description: 安装 nextjs 和 laravel
+---
+
+# 安装nextjs和Laravel
+
+```bash filename="安装nextjs" switcher
+# 当前工作目录：/www2024/4_tutorial/nextjs/case/next_and_laravel
+npx create-next-app@latest
+```
+
+```json filename="frontend/package.json内容" switcher
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "next": "15.3.2"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "@eslint/eslintrc": "^3"
+  }
+}
+```
+
+```bash filename="文件夹和文件调整" switcher
+新建`lib`,`components`,`hooks`文件夹
+
+新建文件 .env .local
+
+frontend/
+├── src/                     # 推荐使用源码目录（集中管理代码）
+│   └── app/                 # 核心路由目录（App Router）
+│       ├── (auth)/          # 路由组（不影响 URL，例如登录/注册）
+│       │   ├── login/
+│       │   │   └── page.tsx
+│       ├── dashboard/       # 嵌套路由示例
+│       │   ├── layout.tsx   # 布局文件（统一页面结构）
+│       │   ├── page.tsx     # 主页面文件
+│       │   └── analytics/   # 子路由（/dashboard/analytics）
+│       │       └── page.tsx
+│       ├── actions/         # 服务端操作（Server Actions）
+│       │   └── user.ts      # 定义服务端数据处理函数
+│       ├── api/             # API 路由（替代 pages/api）
+│       │   └── hello/
+│       │       └── route.ts
+│       ├── components/      # 公共组件（可复用 UI 模块）
+│       ├── lib/             # 工具函数/第三方库封装
+│       │   ├── axios.ts     # 封装 Axios 实例
+│       └── styles/          # 全局样式（CSS 模块化或 Tailwind 配置）
+├── public/                  # 静态资源（图片、字体等）
+│   └── images/              # 通过 `/images/logo.png` 直接访问
+├── middleware.ts            # 全局中间件（身份验证、重定向）
+├── next.config.js           # Next.js 配置文件（支持 TS）
+├── env.local                # 环境变量配置
+├── tsconfig.json            # TypeScript 配置文件
+├── .eslintrc.json           # ESLint 配置文件
+├── .gitignore               # Git 忽略文件
+├── README.md                # 项目说明文件
+└── package.json
+
+依赖 `pnpm add axios swr`
+- axios中文: http://www.axios-js.com/
+- swr中文：https://swr.nodejs.cn/
+- prettier：https://prettier.io/docs/install
+# swr 是一个轻量级的 React Hooks 库，用于在浏览器中进行数据获取和缓存。它提供了一个简单的 API，用于在组件中获取数据并自动管理缓存。
+# axios 是一个基于 Promise 的 HTTP 客户端，用于在浏览器和 Node.js 中发送 HTTP 请求。它提供了一个简单的 API，用于发送 GET、POST、PUT、DELETE 等请求。
+# 这两个库都是非常流行的库，它们都有自己的优点和缺点。axios 更适合在浏览器中发送 HTTP 请求，而 swr 更适合在浏览器中进行数据获取和缓存。
+
+pnpm add --save-dev --save-exact prettier
+node --eval "fs.writeFileSync('.prettierrc','{}\n')"
+node --eval "fs.writeFileSync('.prettierignore','# Ignore artifacts:\nbuild\ncoverage\n')"
+pnpm exec prettier . --write
+
+```
+
+```bash filename="安装laravel" switcher
+# 当前工作目录：/www2024/4_tutorial/nextjs/case/next_and_laravel
+root@pan:/www2024/4_tutorial/nextjs/case/next_and_laravel# laravel new backend
+
+   _                               _
+  | |                             | |
+  | |     __ _ _ __ __ ___   _____| |
+  | |    / _` | '__/ _` \ \ / / _ \ |
+  | |___| (_| | | | (_| |\ V /  __/ |
+  |______\__,_|_|  \__,_| \_/ \___|_|
+
+
+ ┌ Would you like to install a starter kit? ────────────────────┐
+ │ No starter kit                                               │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Which testing framework do you prefer? ──────────────────────┐
+ │ Pest                                                         │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Would you like to initialize a Git repository? ──────────────┐
+ │ Yes                                                          │
+ └──────────────────────────────────────────────────────────────┘
+> @php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+   INFO  Application key set successfully.
+
+ ┌ Which database will your application use? ───────────────────┐
+ │ MySQL                                                        │
+ └──────────────────────────────────────────────────────────────┘
+
+ ┌ Default database updated. Would you like to run the default database migrations? ┐
+ │ No                                                                               │
+ └──────────────────────────────────────────────────────────────────────────────────┘
+
+```
+
+```json filename="frontend/composer.json内容" switcher
+
+```

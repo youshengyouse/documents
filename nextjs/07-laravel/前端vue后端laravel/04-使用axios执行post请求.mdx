@@ -1,0 +1,181 @@
+---
+title: 使用axios执行post请求
+date: 2021-06-15 16:00:00
+tags: ['laravel', 'vue', 'axios']
+---
+
+## 注册
+
+```ts filename="新建src/views/auth/RegisterView.vue" switcher
+<script setup lang="ts">
+// 建议，如果这里使用127.0.0.1而不是localhost, 前端路径为http://127.0.0.1:7000/register,不是http://localhost:7000/register，否则会报419错误，这个小细节折腾了我一上午，也就是与cookie里的domain要一样
+import axios from 'axios';
+const register = async () => {
+  try {
+    await axios.get('http://127.0.0.1:8000/sanctum/csrf-cookie')
+    const result = await axios.post('http://127.0.0.1:8000/api/register', {
+      username: 'zhangsan',
+      email: 'zhangsan@163.com',
+      password: '123456',
+      password_confirmation: '123456'
+    });
+    console.log('axios请求的结果:', result);
+  }
+  catch (e) {
+    console.log('错误', e);
+  }
+
+}
+register();
+</script>
+<template>
+  <div>
+    注册
+  </div>
+</template>
+<style scoped></style>
+
+// http://localhost:7000/register会报错 419, CSRF token mismatch
+// response中的cookie也不会写入浏览器中
+// 先解决 CSRF token问题,除了 head/get/options三种方法外，都要进行csrf token验证
+//
+```
+
+## 理解 withCredentials
+
+```ts filename="前端src/views/DelView.vue" switcher
+<script setup lang="ts">
+import axios from "axios";
+axios
+    .get("http://127.0.0.1:8000/get-cookie", {
+        withCredentials: true,
+    })
+    .then((res) => {
+        console.log(res);
+    })
+    .catch((err) => {
+        console.log(err);
+    });
+/**
+在浏览器中直接 http://127.0.0.1:8000/get-cookie,response正常向浏览器中写入cookie
+在 http://127.0.0.1:7000/del，通过axios访问,会报cors错误，
+当 withCredentials值为false时，response中有cookie，但不会写入到浏览器中
+当 withCredentials值为false时，response中有cookie，会写入到浏览器中
+*/
+</script>
+<template>
+    <div>测试可删</div>
+</template>
+<style scoped></style>
+```
+
+```ts filename="后端 routes/web.php" switcher
+Route::get('/get-cookie', function () {
+    return response()
+        ->json([
+            'Hello World',
+            'cookies' => request()->cookie()
+        ])
+        ->header('Content-Type', 'application/json; charset=utf-8')
+        ->cookie(
+            'city', 'changsha', 10
+        )->cookie('province', 'hunan');
+});
+```
+
+## cors配置
+
+laravel12默认是不含cors配置文件的
+
+```bash
+php artisan config:publish cors
+# 生成文件 config/cors.php
+```
+
+内容如下
+
+```php filename="config/cors.php" switcher
+<?php
+return [
+   'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_methods' => ['*'],
+    'allowed_origins' => ["http://localhost:7000","http://127.0.0.1:7000"],// 这里不能为*，必须包括前端地址，注意是localhost还是127.0.0.1
+    'allowed_origins_patterns' => [],
+    'allowed_headers' => ['*'],
+    'exposed_headers' => ['*'],
+    'max_age' => 0,//24*60*60
+    'supports_credentials' => true,// 这里必须为true
+];
+```
+
+```php filename="config/sessions.php" switcher
+<?php
+return [
+   'same_site' => env('SESSION_SAME_SITE', 'lax'), // 不能为none
+];
+```
+
+```php filename="config/sanctum.php" switcher
+<?php
+    'stateful' => [
+        env('SANCTUM_STATEFUL_DOMAINS', sprintf(
+            '%s%s',
+            'localhost,localhost:7000,127.0.0.1,127.0.0.1:8000,::1',
+            env('APP_URL') ? ','.parse_url(env('APP_URL'), PHP_URL_HOST) : ''
+        )),
+        'localhost:7000', // 确保这里是您 Vue 开发服务器的实际地址和端口
+        '127.0.0.1:7000', // 可能也需要这个
+    ],
+```
+
+<Image src="/vue_and_laravel/4-1.png" width={600} height={400} />
+<Image src="/vue_and_laravel/4-2.png" width={600} height={400} />
+<Image src="/vue_and_laravel/5.png" width={600} height={400} />
+
+血的教训：cookie的domain是127.0.0.1,而我在浏览器中一直使用localhost:7000,导致cookie无法写入浏览器中
+
+现在 csrf-cookie返回204,但register仍返回419
+
+好的，明白了。如果在 `/api/register` 的请求头 (Request Headers) 中**既没有 `X-XSRF-TOKEN` header，Cookie 请求头中也没有 `XSRF-TOKEN`**，这通常意味着以下两种情况之一：
+
+1.  **`XSRF-TOKEN` Cookie 根本没有被成功设置到浏览器中。**
+2.  **Cookie 被设置了，但是由于某些原因 (如 `HttpOnly` 属性、`SameSite` 属性、跨域策略等)，它没有被包含在发送到 `/api/register` 的请求中。**
+
+鉴于您的情况，问题更可能出在第一步，即 **`XSRF-TOKEN` Cookie 的获取和设置环节**。
+
+请您**务必**重新仔细检查以下步骤：
+
+**A. 彻底检查 `/sanctum/csrf-cookie` 请求：**
+
+1.  **请求成功与否**：在浏览器开发者工具的 "Network" 面板，找到对 `/sanctum/csrf-cookie` 的 GET 请求。
+    - **状态码 (Status Code)**：确认状态码是 `204 No Content`。如果不是，比如是 `419` (CSRF token mismatch/expired) 或其他错误码，那么问题就在这里，后端没有成功发出 cookie。
+    - **响应头 (Response Headers)**：这是**最关键**的一步。仔细查看这个请求的响应头，**必须**包含一个 `Set-Cookie` 指令，其内容类似：
+      ```
+      Set-Cookie: XSRF-TOKEN=eyJpdiI6...; expires=...; path=/; samesite=lax
+      ```
+      (注意：`samesite` 的值可能是 `lax` 或 `none`，`secure` 属性也可能存在，具体取决于您的 Laravel 配置)。
+      **如果没有这个 `Set-Cookie` 指令，那么浏览器就没有收到设置 `XSRF-TOKEN` cookie 的命令。**
+
+**B. 彻底检查 Cookie 存储情况 (在 `/sanctum/csrf-cookie` 请求之后)：**
+
+1.  **开发者工具的 "Application" (或 "Storage") 面板**：
+    - 导航到 "Cookies" 部分，并选择与您后端 API 域名 (`http://127.0.0.1` 或 `http://localhost:8000`) 相关的条目。
+    - **确认 `XSRF-TOKEN` 是否存在**：如果上一步的 `Set-Cookie` 指令存在且有效，这里应该能看到 `XSRF-TOKEN` cookie。
+    - **检查 `HttpOnly` 属性**：再次强调，`XSRF-TOKEN` 的 `HttpOnly` 属性**必须是未勾选状态 (false)**。如果 `HttpOnly` 被勾选 (true)，那么 `axios` (JavaScript) 将无法读取它，自然也无法将其值放入 `X-XSRF-TOKEN` 请求头。
+    - **检查 `Domain` 和 `Path` 属性**：确保它们与您的应用设置相符。通常 `Path` 应该是 `/`，`Domain` 应该是您的后端 API 域名。
+    - **检查 `SameSite` 属性**：如果 `SameSite` 设置为 `Strict`，它可能阻止 cookie 在跨站请求中发送。`Lax` 通常是默认且可接受的。如果设置为 `None`，则必须同时设置 `Secure` 属性 (即 cookie 只能通过 HTTPS 发送)。
+
+**如果 `/sanctum/csrf-cookie` 请求的响应头中就没有 `Set-Cookie` 指令来设置 `XSRF-TOKEN`，那么问题源头就在您的 Laravel 后端配置上，而不是前端。** 可能的原因包括：
+
+- **路由问题**：确保 `/sanctum/csrf-cookie` 路由确实存在并且可访问 (通常由 Sanctum 自动处理)。
+- **中间件问题**：检查 `app/Http/Kernel.php` 中 `api` 中间件组的配置，特别是与会话和 CSRF 相关的中间件。Sanctum 依赖于 `EnsureFrontendRequestsAreStateful` 中间件来决定何时应发送 CSRF cookie。
+- **`config/sanctum.php` 中的 `stateful` 域名配置**：如果您的前端域名 (例如 `localhost:5173`) 没有被正确列在 `stateful` 数组中，Sanctum 可能认为该请求不是来自一个需要 CSRF cookie 的前端，因此不发送 `Set-Cookie`。
+- **`config/session.php` 中的 `domain` 配置**：如果 `SESSION_DOMAIN` 在 `.env` 文件中被设置为了一个特定的值，而这个值与您前端访问后端的域名不匹配，cookie 可能无法正确设置或发送。对于本地开发，通常将其设置为 `null` 或注释掉，以便 cookie 作用于当前访问的域名。
+
+**总结一下当前的排查焦点：**
+
+1.  **首要任务**：确认 `/sanctum/csrf-cookie` 请求的响应头中是否有 `Set-Cookie: XSRF-TOKEN=...`。
+2.  如果**有** `Set-Cookie`，则仔细检查浏览器中实际存储的 `XSRF-TOKEN` cookie 的各项属性 (尤其是 `HttpOnly`)。
+3.  如果**没有** `Set-Cookie`，则问题在 Laravel 后端，需要检查 Sanctum 和 Session 的相关配置。
+
+请您先仔细排查 `/sanctum/csrf-cookie` 请求的响应头，这是目前最关键的线索。

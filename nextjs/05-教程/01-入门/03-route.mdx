@@ -1,0 +1,154 @@
+---
+title: 基础教程第03课
+---
+
+## 路由
+
+<Mermaid
+  chart="
+flowchart LR
+A(请求request)-->B([**路由管理器**\n根据请求的url匹配相应的路由])-->C(控制器,读取数据填充到视图，返回response)
+style A fill:#f0fdf4,stroke:#86efac,stroke-width:2px
+style B fill:#f0fdf4,stroke:#00ff00,stroke-width:2px,stroke-dasharray: 5 5
+style C fill:#f0fdf4,stroke:#86efac,stroke-width:2px
+"
+/>
+
+<Mermaid
+  chart="
+flowchart LR
+A(请求request)------->B([文件夹直接匹配，文件夹名和文件名要求符合规范])
+style A fill:#fdf4ff,stroke:#e879f9,stroke-width:2px
+style B fill:#fdf4ff,stroke:#e879f9,stroke-width:2px,stroke-dasharray: 5 5
+"
+/>
+## 9种路由文件名
+
+| 文件名                                                                        | 文件类型            | 说明               |
+| ----------------------------------------------------------------------------- | ------------------- | ------------------ |
+| [`layout`](/docs/app/api-reference/file-conventions/layout)                   | `.js` `.jsx` `.tsx` | 布局               |
+| [`page`](/docs/app/api-reference/file-conventions/page)                       | `.js` `.jsx` `.tsx` | 页面               |
+| [`loading`](/docs/app/api-reference/file-conventions/loading)                 | `.js` `.jsx` `.tsx` | 加载 UI            |
+| [`not-found`](/docs/app/api-reference/file-conventions/not-found)             | `.js` `.jsx` `.tsx` | 404 页面           |
+| [`error`](/docs/app/api-reference/file-conventions/error)                     | `.js` `.jsx` `.tsx` | 错误页面           |
+| [`global-error`](/docs/app/api-reference/file-conventions/error#global-error) | `.js` `.jsx` `.tsx` | 全局错误页面       |
+| [`route`](/docs/app/api-reference/file-conventions/route)                     | `.js` `.ts`         | API 端点           |
+| [`template`](/docs/app/api-reference/file-conventions/template)               | `.js` `.jsx` `.tsx` | 重新渲染的布局     |
+| [`default`](/docs/app/api-reference/file-conventions/default)                 | `.js` `.jsx` `.tsx` | 并行路由的回退页面 |
+
+### 路由(可以理解文件夹匹配路由)
+
+<Tabs items={['嵌套路由','动态路由','路由组和私有文件夹','并行和拦截路由']}>
+  <Tab value="嵌套路由">
+|       路径组成         |          说明            |
+| --------------- | -------------------- |
+| `folder`        | 路由段               |
+| `folder/folder` | 嵌套路由段           |
+| `/` |   思路1   |
+| `/docs/es6` |   思路2   |
+
+**思路 1：**
+
+<Callout title="路由文件查找顺序" type="error">
+  在根目录下找路由文件(在上表中的9个文件中找)，顺序是,page.tsx->not-found.tsx->template.tsx->layout.tsx
+</Callout>
+
+1️⃣ 确定<span style={{color:"#ff0000"}}>页面内容</span>：
+
+❶ 在**根目录**下找`page.tsx`文件，如果找到，返回值就是页面内容。
+
+❷ 如果没找到，就看相同目录下有没有 not-found.tsx 文件，如果有，返回值就是页面内容;
+
+❸ 如果这两个文件都没有，就使用默认的 404 返回值
+
+2️⃣ 替换 template.tsx 文件中(如果同目录下`template.tsx`文件存在，如果没有，就跳过)的`{children}` ,现在，其返回值就是<span style={{color:"#ff0000"}}>页面内容</span>
+
+3️⃣ 在**根目录下**找`layout.tsx`文件，<span style={{color:"#ff0000"}}>页面内容</span>替换`{children}`
+
+**思路 2：**
+
+查找顺序
+
+第一步：先在 `/docs/es6` 目录下找，顺序为 `page.tsx -> not-found.tsx -> template.tsx ->layout.tsx`，确定页面内容
+
+第二步：在`/docs` 目录下找，顺序为 `template.tsx ->layout.tsx`
+
+第三步：在`/` 目录下找，顺序是 `template.tsx ->layout.tsx`
+
+**总结：**
+
+根据嵌套路由，不管嵌套多少层，如 `/docs/frontend/js/ts/basic`，第一步找的是 `/docs/frontend/js/ts/basic/page.tsx` 这个文件，中间就从最底层文件夹中按`template.tsx ->layout.tsx`往上找，最后一步替换`/layout.tsx`中的`{children}`。除了根布局文件外，其它的布局文件和模板文件中都得有`{children}`，否则数据就传不到根布局文件中
+
+  </Tab>
+
+      <Tab value="动态路由">
+
+| 1                                                                                                         | 2                |
+| --------------------------------------------------------------------------------------------------------- | ---------------- |
+| [`[folder]`](/docs/app/building-your-application/routing/dynamic-routes#convention)                       | 动态路由段       |
+| [`[...folder]`](/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)            | 全捕获路由段     |
+| [`[[...folder]]`](/docs/app/building-your-application/routing/dynamic-routes#optional-catch-all-segments) | 可选全捕获路由段 |
+
+app/users/[userId]/page.tsx 匹配 /users/123
+
+app/blog/[[...slug]]/page.tsx 匹配 /blog、/blog/post/1、/blog/category/tech
+
+app/shop/[...slug]/page.js 匹配 /shop/a `{ slug: ['a'] }`,/shop/a/b `{ slug: ['a', 'b'] }`,/shop/a/b/c `{ slug: ['a', 'b', 'c'] }`，不匹配 /shop
+
+app/shop/[[...slug]]/page.js 匹配/shop `{ slug: undefined }`, /shop/a,/shop/a/b,/shop/a/b/c，
+
+总结：全捕获路由段 中的 slug 不能为空
+
+app/[[...allPaths]]/page.tsx 匹配所有未定义的路径，包括根路径
+
+  </Tab>
+
+      <Tab value="路由组和私有文件夹">
+
+| 1                                                                                 | 2                                |
+| --------------------------------------------------------------------------------- | -------------------------------- |
+| [`(folder)`](/docs/app/building-your-application/routing/route-groups#convention) | 不影响路由的路由组               |
+| [`_folder`](#private-folders)                                                     | 将文件夹及其所有子段从路由中排除 |
+
+**分组路由的定义**
+分组路由借助圆括号 `(如:home)` 来实现。这种方式可以把页面、布局等文件归为一组，但在生成 URL 路径时不会体现这些分组文件夹的名称。
+
+**主要用途**
+
+按功能模块划分：能够按照功能、团队或者项目特性对代码进行分类。
+
+共享布局：可以为特定的一组路由设置共享的布局。
+
+视觉区分：在文件系统中通过分组文件夹对相关路由进行直观的分组。
+
+`/app/page.tsx` 和 `/app/(about)/page.tsx` 都可以匹配 `/`，如果两个文件都存在，匹配的 `/app/page.tsx`
+
+   </Tab>
+
+         <Tab value="并行和拦截路由">
+
+| 2                                                                                              | 3              |
+| ---------------------------------------------------------------------------------------------- | -------------- |
+| [`@folder`](/docs/app/building-your-application/routing/parallel-routes#slots)                 | 命名插槽       |
+| [`(.)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)      | 拦截同级路由   |
+| [`(..)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)     | 拦截上一级路由 |
+| [`(..)(..)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention) | 拦截上两级路由 |
+| [`(...)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)    | 从根路由拦截   |
+
+  </Tab>
+
+</Tabs>
+
+## ❸ 总结
+
+## ❹ 思考
+
+```plaintext
+app/
+  about/
+    page.tsx          // 优先匹配 `/about`
+    [[...slug]]/
+      page.tsx        // 仅匹配其他未定义的路径
+```
+
+{/* ⓿ ❶ ❷ ❸ ❹ ❺ ❻ ❼ ❽ ❾ ❿ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴ */}

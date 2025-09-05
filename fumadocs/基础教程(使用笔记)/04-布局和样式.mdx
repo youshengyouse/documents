@@ -1,0 +1,63 @@
+---
+title: 布局和样式
+---
+
+## 文档布局配置项
+
+```bash
+- tree: PageTree.Root;
+- tabMode?: 'sidebar' | 'navbar';
+- nav?: BaseLayoutProps['nav'] & {
+  mode?: 'top' | 'auto';
+  };
+- sidebar?: Partial<SidebarOptions>;
+- containerProps?: HTMLAttributes<HTMLDivElement>;
+
+- themeSwitch?: {
+  enabled?: boolean;
+  component?: ReactNode;
+  mode?: 'light-dark' | 'light-dark-system';
+  };
+- searchToggle?: Partial<{
+  enabled: boolean;
+  components: Partial<{
+  sm: ReactNode;
+  lg: ReactNode;
+  }>;
+  }>;
+- i18n
+- githubUrl
+- links
+- nav
+```
+
+## 修改主导航
+
+```ts
+// import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { DocsLayout } from "fumadocs-ui/layouts/notebook";
+import type { ReactNode } from "react";
+import { baseOptions } from "@/app/layout.config";
+import { source } from "@/lib/source";
+console.log("测试日志 - 服务器端"); // 检查终端
+export default function Layout({ children }: { children: ReactNode }) {
+  console.log("这会在服务器和客户端各打印一次");
+  console.log(source);
+  return (
+    <DocsLayout
+      tabMode="sidebar" //tabMode: 'navbar' | 'sidebar'
+      title="FumaDocs"
+      description="FumaDocs"
+      tree={source.pageTree}
+      {...baseOptions}
+      sidebar={{
+        enabled: true,
+        // replace the default sidebar
+        // component:
+      }}
+    >
+      {children}
+    </DocsLayout>
+  );
+}
+```

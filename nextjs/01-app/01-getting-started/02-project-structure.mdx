@@ -1,0 +1,407 @@
+---
+title: 项目结构与组织
+nav_title: 项目结构
+description: 概述Next.js中的文件夹和文件约定，以及如何组织您的项目。
+---
+
+- 参考：https://www.bilibili.com/video/BV157pRe8EyD
+- 路径可以是中文吗？
+
+本文档概述了 Next.js 中**所有**的文件夹和文件约定，并提供了组织项目的建议。
+
+## 文件夹和文件约定
+
+### 顶级文件夹
+
+顶级文件夹用于组织应用程序代码和静态资源。
+
+<Image
+  alt="路由段到路径段的映射"
+  srcLight="/docs/nextjs/light/top-level-folders.png"
+  srcDark="/docs/nextjs/light/top-level-folders.png"
+  width="1600"
+  height="525"
+/>{" "}
+
+|                                                                    |                            |
+| ------------------------------------------------------------------ | -------------------------- |
+| [`app`](/docs/app/building-your-application/routing)               | App 路由                   |
+| [`pages`](/docs/pages/building-your-application/routing)           | Pages 路由                 |
+| [`public`](/docs/app/api-reference/file-conventions/public-folder) | 静态资源文件               |
+| [`src`](/docs/app/api-reference/file-conventions/src-folder)       | 可选的应用程序源代码文件夹 |
+
+### 顶级文件
+
+顶级文件用于配置应用程序、管理依赖项、运行中间件、集成监控工具和定义环境变量。
+
+|                                                                              |                                       |
+| ---------------------------------------------------------------------------- | ------------------------------------- |
+| **Next.js**                                                                  |                                       |
+| [`next.config.js`](/docs/app/api-reference/config/next-config-js)            | Next.js 配置文件                      |
+| [`package.json`](/docs/app/getting-started/installation#manual-installation) | 项目依赖和脚本                        |
+| [`instrumentation.ts`](/docs/app/guides/instrumentation)                     | OpenTelemetry 和 Instrumentation 文件 |
+| [`middleware.ts`](/docs/app/building-your-application/routing/middleware)    | Next.js 请求中间件                    |
+| [`.env`](/docs/app/guides/environment-variables)                             | 环境变量                              |
+| [`.env.local`](/docs/app/guides/environment-variables)                       | 本地环境变量                          |
+| [`.env.production`](/docs/app/guides/environment-variables)                  | 生产环境变量                          |
+| [`.env.development`](/docs/app/guides/environment-variables)                 | 开发环境变量                          |
+| [`.eslintrc.json`](/docs/app/api-reference/config/eslint)                    | ESLint 配置文件                       |
+| `.gitignore`                                                                 | Git 忽略文件和文件夹                  |
+| `next-env.d.ts`                                                              | Next.js 的 TypeScript 声明文件        |
+| `tsconfig.json`                                                              | TypeScript 配置文件                   |
+| `jsconfig.json`                                                              | JavaScript 配置文件                   |
+
+<AppOnly>
+
+### 路由文件
+
+|                                                                               |                     |                    |
+| ----------------------------------------------------------------------------- | ------------------- | ------------------ |
+| [`layout`](/docs/app/api-reference/file-conventions/layout)                   | `.js` `.jsx` `.tsx` | 布局               |
+| [`page`](/docs/app/api-reference/file-conventions/page)                       | `.js` `.jsx` `.tsx` | 页面               |
+| [`loading`](/docs/app/api-reference/file-conventions/loading)                 | `.js` `.jsx` `.tsx` | 加载 UI            |
+| [`not-found`](/docs/app/api-reference/file-conventions/not-found)             | `.js` `.jsx` `.tsx` | 404 页面           |
+| [`error`](/docs/app/api-reference/file-conventions/error)                     | `.js` `.jsx` `.tsx` | 错误页面           |
+| [`global-error`](/docs/app/api-reference/file-conventions/error#global-error) | `.js` `.jsx` `.tsx` | 全局错误页面       |
+| [`route`](/docs/app/api-reference/file-conventions/route)                     | `.js` `.ts`         | API 端点           |
+| [`template`](/docs/app/api-reference/file-conventions/template)               | `.js` `.jsx` `.tsx` | 重新渲染的布局     |
+| [`default`](/docs/app/api-reference/file-conventions/default)                 | `.js` `.jsx` `.tsx` | 并行路由的回退页面 |
+
+### 嵌套路由
+
+|                 |            |
+| --------------- | ---------- |
+| `folder`        | 路由段     |
+| `folder/folder` | 嵌套路由段 |
+
+### 动态路由
+
+|                                                                                                           |                  |
+| --------------------------------------------------------------------------------------------------------- | ---------------- |
+| [`[folder]`](/docs/app/building-your-application/routing/dynamic-routes#convention)                       | 动态路由段       |
+| [`[...folder]`](/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)            | 全捕获路由段     |
+| [`[[...folder]]`](/docs/app/building-your-application/routing/dynamic-routes#optional-catch-all-segments) | 可选全捕获路由段 |
+
+### 路由组和私有文件夹
+
+|                                                                                   |                                  |
+| --------------------------------------------------------------------------------- | -------------------------------- |
+| [`(folder)`](/docs/app/building-your-application/routing/route-groups#convention) | 不影响路由的路由组               |
+| [`_folder`](#private-folders)                                                     | 将文件夹及其所有子段从路由中排除 |
+
+### 并行和拦截路由
+
+|                                                                                                |                |
+| ---------------------------------------------------------------------------------------------- | -------------- |
+| [`@folder`](/docs/app/building-your-application/routing/parallel-routes#slots)                 | 命名插槽       |
+| [`(.)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)      | 拦截同级路由   |
+| [`(..)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)     | 拦截上一级路由 |
+| [`(..)(..)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention) | 拦截上两级路由 |
+| [`(...)folder`](/docs/app/building-your-application/routing/intercepting-routes#convention)    | 从根路由拦截   |
+
+### 元数据文件约定
+
+#### 应用图标
+
+|                                                                                                                 |                                     |                       |
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------------- | --------------------- |
+| [`favicon`](/docs/app/api-reference/file-conventions/metadata/app-icons#favicon)                                | `.ico`                              | 网站图标文件          |
+| [`icon`](/docs/app/api-reference/file-conventions/metadata/app-icons#icon)                                      | `.ico` `.jpg` `.jpeg` `.png` `.svg` | 应用图标文件          |
+| [`icon`](/docs/app/api-reference/file-conventions/metadata/app-icons#generate-icons-using-code-js-ts-tsx)       | `.js` `.ts` `.tsx`                  | 生成的应用图标        |
+| [`apple-icon`](/docs/app/api-reference/file-conventions/metadata/app-icons#apple-icon)                          | `.jpg` `.jpeg`, `.png`              | Apple 应用图标文件    |
+| [`apple-icon`](/docs/app/api-reference/file-conventions/metadata/app-icons#generate-icons-using-code-js-ts-tsx) | `.js` `.ts` `.tsx`                  | 生成的 Apple 应用图标 |
+
+#### Open Graph 和 Twitter 图片
+
+|                                                                                                                             |                              |                        |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ---------------------- |
+| [`opengraph-image`](/docs/app/api-reference/file-conventions/metadata/opengraph-image#opengraph-image)                      | `.jpg` `.jpeg` `.png` `.gif` | Open Graph 图片文件    |
+| [`opengraph-image`](/docs/app/api-reference/file-conventions/metadata/opengraph-image#generate-images-using-code-js-ts-tsx) | `.js` `.ts` `.tsx`           | 生成的 Open Graph 图片 |
+| [`twitter-image`](/docs/app/api-reference/file-conventions/metadata/opengraph-image#twitter-image)                          | `.jpg` `.jpeg` `.png` `.gif` | Twitter 图片文件       |
+| [`twitter-image`](/docs/app/api-reference/file-conventions/metadata/opengraph-image#generate-images-using-code-js-ts-tsx)   | `.js` `.ts` `.tsx`           | 生成的 Twitter 图片    |
+
+#### SEO
+
+|                                                                                                              |             |                    |
+| ------------------------------------------------------------------------------------------------------------ | ----------- | ------------------ |
+| [`sitemap`](/docs/app/api-reference/file-conventions/metadata/sitemap#sitemap-files-xml)                     | `.xml`      | 网站地图文件       |
+| [`sitemap`](/docs/app/api-reference/file-conventions/metadata/sitemap#generating-a-sitemap-using-code-js-ts) | `.js` `.ts` | 生成的网站地图     |
+| [`robots`](/docs/app/api-reference/file-conventions/metadata/robots#static-robotstxt)                        | `.txt`      | Robots 文件        |
+| [`robots`](/docs/app/api-reference/file-conventions/metadata/robots#generate-a-robots-file)                  | `.js` `.ts` | 生成的 Robots 文件 |
+
+</AppOnly>
+
+<PagesOnly>
+
+### 文件约定
+
+|                                                                                                             |                     |                 |
+| ----------------------------------------------------------------------------------------------------------- | ------------------- | --------------- |
+| [`_app`](/docs/pages/building-your-application/routing/custom-app)                                          | `.js` `.jsx` `.tsx` | 自定义 App      |
+| [`_document`](/docs/pages/building-your-application/routing/custom-document)                                | `.js` `.jsx` `.tsx` | 自定义 Document |
+| [`_error`](/docs/pages/building-your-application/routing/custom-error#more-advanced-error-page-customizing) | `.js` `.jsx` `.tsx` | 自定义错误页面  |
+| [`404`](/docs/pages/building-your-application/routing/custom-error#404-page)                                | `.js` `.jsx` `.tsx` | 404 错误页面    |
+| [`500`](/docs/pages/building-your-application/routing/custom-error#500-page)                                | `.js` `.jsx` `.tsx` | 500 错误页面    |
+
+### 路由
+
+|                                                                                                |                     |          |
+| ---------------------------------------------------------------------------------------------- | ------------------- | -------- |
+| **文件夹约定**                                                                                 |                     |          |
+| [`index`](/docs/pages/building-your-application/routing/pages-and-layouts#index-routes)        | `.js` `.jsx` `.tsx` | 首页     |
+| [`folder/index`](/docs/pages/building-your-application/routing/pages-and-layouts#index-routes) | `.js` `.jsx` `.tsx` | 嵌套页面 |
+| **文件约定**                                                                                   |                     |          |
+| [`index`](/docs/pages/building-your-application/routing/pages-and-layouts#index-routes)        | `.js` `.jsx` `.tsx` | 首页     |
+| [`file`](/docs/pages/building-your-application/routing/pages-and-layouts)                      | `.js` `.jsx` `.tsx` | 嵌套页面 |
+
+### 动态路由
+
+|                                                                                                                   |                     |                  |
+| ----------------------------------------------------------------------------------------------------------------- | ------------------- | ---------------- |
+| **文件夹约定**                                                                                                    |                     |                  |
+| [`[folder]/index`](/docs/pages/building-your-application/routing/dynamic-routes)                                  | `.js` `.jsx` `.tsx` | 动态路由段       |
+| [`[...folder]/index`](/docs/pages/building-your-application/routing/dynamic-routes#catch-all-segments)            | `.js` `.jsx` `.tsx` | 全捕获路由段     |
+| [`[[...folder]]/index`](/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments) | `.js` `.jsx` `.tsx` | 可选全捕获路由段 |
+| **文件约定**                                                                                                      |                     |                  |
+| [`[file]`](/docs/pages/building-your-application/routing/dynamic-routes)                                          | `.js` `.jsx` `.tsx` | 动态路由段       |
+| [`[...file]`](/docs/pages/building-your-application/routing/dynamic-routes#catch-all-segments)                    | `.js` `.jsx` `.tsx` | 全捕获路由段     |
+| [`[[...file]]`](/docs/pages/building-your-application/routing/dynamic-routes#optional-catch-all-segments)         | `.js` `.jsx` `.tsx` | 可选全捕获路由段 |
+
+</PagesOnly>
+
+<AppOnly>
+
+## 组织您的项目
+
+Next.js 对如何组织和共置项目文件**没有强制要求**。但它确实提供了几个功能来帮助您组织项目。
+
+### 组件层次结构
+
+特殊文件中定义的组件按特定层次结构渲染：
+
+- `layout.js`
+- `template.js`
+- `error.js` (React 错误边界)
+- `loading.js` (React suspense 边界)
+- `not-found.js` (React 错误边界)
+- `page.js` 或嵌套的 `layout.js`
+
+<Image
+  alt="文件约定的组件层次结构"
+  srcLight="/docs/light/file-conventions-component-hierarchy.png"
+  srcDark="/docs/dark/file-conventions-component-hierarchy.png"
+  width="1600"
+  height="643"
+/>
+
+组件在嵌套路由中递归渲染，这意味着路由段的组件将嵌套在其父路由段的组件**内部**。
+
+<Image
+  alt="嵌套文件约定的组件层次结构"
+  srcLight="/docs/light/nested-file-conventions-component-hierarchy.png"
+  srcDark="/docs/dark/nested-file-conventions-component-hierarchy.png"
+  width="1600"
+  height="863"
+/>
+
+### 共置
+
+在`app`目录中，嵌套文件夹定义了路由结构。每个文件夹代表一个路由段，映射到 URL 路径中的相应段。
+
+然而，尽管路由结构是通过文件夹定义的，但只有在路由段中添加`page.js`或`route.js`文件后，路由才是**公开可访问**的。
+
+<Image
+  alt="图表显示在路由段中添加page.js或route.js文件之前路由不可公开访问"
+  srcLight="/docs/light/project-organization-not-routable.png"
+  srcDark="/docs/dark/project-organization-not-routable.png"
+  width="1600"
+  height="444"
+/>
+
+而且，即使路由变为公开可访问，也只有`page.js`或`route.js`返回的**内容**会发送到客户端。
+
+<Image
+  alt="图表显示page.js和route.js文件使路由公开可访问"
+  srcLight="/docs/light/project-organization-routable.png"
+  srcDark="/docs/dark/project-organization-routable.png"
+  width="1600"
+  height="687"
+/>
+
+这意味着**项目文件**可以**安全地共置**在`app`目录的路由段中，而不会意外变为可路由。
+
+<Image
+  alt="图表显示共置的项目文件即使段包含page.js或route.js文件也不可路由"
+  srcLight="/docs/light/project-organization-colocation.png"
+  srcDark="/docs/dark/project-organization-colocation.png"
+  width="1600"
+  height="1011"
+/>
+
+> **须知**: 虽然您**可以**将项目文件共置在`app`中，但您**不必**这样做。如果您愿意，可以[将它们保留在`app`目录之外](#store-project-files-outside-of-app)。
+
+### 私有文件夹
+
+可以通过在文件夹名称前加下划线来创建私有文件夹：`_folderName`
+
+这表示该文件夹是私有实现细节，不应被路由系统考虑，从而**将该文件夹及其所有子文件夹**从路由中排除。
+
+<Image
+  alt="使用私有文件夹的示例文件夹结构"
+  srcLight="/docs/light/project-organization-private-folders.png"
+  srcDark="/docs/dark/project-organization-private-folders.png"
+  width="1600"
+  height="849"
+/>
+
+由于`app`目录中的文件可以[默认安全共置](#colocation)，因此共置不需要私有文件夹。但它们可用于：
+
+- 将 UI 逻辑与路由逻辑分离。
+- 在项目和 Next.js 生态系统中一致地组织内部文件。
+- 在代码编辑器中排序和分组文件。
+- 避免与未来 Next.js 文件约定的潜在命名冲突。
+
+> **须知**:
+>
+> - 虽然不是框架约定，但您也可以考虑使用相同的下划线模式标记私有文件夹之外的文件为"私有"。
+> - 您可以通过在文件夹名称前添加`%5F`(下划线的 URL 编码形式)来创建以下划线开头的 URL 段：`%5FfolderName`。
+> - 如果不使用私有文件夹，了解 Next.js[特殊文件约定](/docs/app/getting-started/project-structure#routing-files)有助于防止意外的命名冲突。
+
+### 路由组
+
+可以通过将文件夹用括号包裹来创建路由组：`(folderName)`
+
+这表示该文件夹用于组织目的，不应包含在路由的 URL 路径中。
+
+<Image
+  alt="使用路由组的示例文件夹结构"
+  srcLight="/docs/light/project-organization-route-groups.png"
+  srcDark="/docs/dark/project-organization-route-groups.png"
+  width="1600"
+  height="849"
+/>
+
+路由组可用于：
+
+- 按网站部分、意图或团队组织路由。例如营销页面、管理页面等。
+- 在同一路由段级别启用嵌套布局：
+  - [在同一段中创建多个嵌套布局，包括多个根布局](#creating-multiple-root-layouts)
+  - [将布局添加到公共段中的路由子集](#opting-specific-segments-into-a-layout)
+
+### `src`文件夹
+
+Next.js 支持将应用程序代码(包括`app`)存储在可选的[`src`文件夹](/docs/app/api-reference/file-conventions/src-folder)中。这将应用程序代码与主要位于项目根目录中的项目配置文件分开。
+
+<Image
+  alt="带有`src`文件夹的示例文件夹结构"
+  srcLight="/docs/light/project-organization-src-directory.png"
+  srcDark="/docs/dark/project-organization-src-directory.png"
+  width="1600"
+  height="687"
+/>
+
+## Examples
+
+The following section lists a very high-level overview of common strategies. The simplest takeaway is to choose a strategy that works for you and your team and be consistent across the project.
+
+> **Good to know**: In our examples below, we're using `components` and `lib` folders as generalized placeholders, their naming has no special framework significance and your projects might use other folders like `ui`, `utils`, `hooks`, `styles`, etc.
+
+### Store project files outside of `app`
+
+This strategy stores all application code in shared folders in the **root of your project** and keeps the `app` directory purely for routing purposes.
+
+<Image
+  alt="An example folder structure with project files outside of app"
+  srcLight="/docs/light/project-organization-project-root.png"
+  srcDark="/docs/dark/project-organization-project-root.png"
+  width="1600"
+  height="849"
+/>
+
+### Store project files in top-level folders inside of `app`
+
+This strategy stores all application code in shared folders in the **root of the `app` directory**.
+
+<Image
+  alt="An example folder structure with project files inside app"
+  srcLight="/docs/light/project-organization-app-root.png"
+  srcDark="/docs/dark/project-organization-app-root.png"
+  width="1600"
+  height="849"
+/>
+
+### Split project files by feature or route
+
+This strategy stores globally shared application code in the root `app` directory and **splits** more specific application code into the route segments that use them.
+
+<Image
+  alt="An example folder structure with project files split by feature or route"
+  srcLight="/docs/light/project-organization-app-root-split.png"
+  srcDark="/docs/dark/project-organization-app-root-split.png"
+  width="1600"
+  height="1011"
+/>
+
+### Organize routes without affecting the URL path
+
+To organize routes without affecting the URL, create a group to keep related routes together. The folders in parenthesis will be omitted from the URL (e.g. `(marketing)` or `(shop)`).
+
+<Image
+  alt="Organizing Routes with Route Groups"
+  srcLight="/docs/light/route-group-organisation.png"
+  srcDark="/docs/dark/route-group-organisation.png"
+  width="1600"
+  height="930"
+/>
+
+Even though routes inside `(marketing)` and `(shop)` share the same URL hierarchy, you can create a different layout for each group by adding a `layout.js` file inside their folders.
+
+<Image
+  alt="Route Groups with Multiple Layouts"
+  srcLight="/docs/light/route-group-multiple-layouts.png"
+  srcDark="/docs/dark/route-group-multiple-layouts.png"
+  width="1600"
+  height="768"
+/>
+
+### Opting specific segments into a layout
+
+To opt specific routes into a layout, create a new route group (e.g. `(shop)`) and move the routes that share the same layout into the group (e.g. `account` and `cart`). The routes outside of the group will not share the layout (e.g. `checkout`).
+
+<Image
+  alt="Route Groups with Opt-in Layouts"
+  srcLight="/docs/light/route-group-opt-in-layouts.png"
+  srcDark="/docs/dark/route-group-opt-in-layouts.png"
+  width="1600"
+  height="930"
+/>
+
+### Opting for loading skeletons on a specific route
+
+To apply a [loading skeleton](/docs/app/building-your-application/routing/loading-ui-and-streaming) via a `loading.js` file to a specific route, create a new route group (e.g., `/(overview)`) and then move your `loading.tsx` inside that route group.
+
+<Image
+  alt="Folder structure showing a loading.tsx and a page.tsx inside the route group"
+  srcLight="/docs/light/route-group-loading.png"
+  srcDark="/docs/dark/route-group-loading.png"
+  width="1600"
+  height="444"
+/>
+
+Now, the `loading.tsx` file will only apply to your dashboard → overview page instead of all your dashboard pages without affecting the URL path structure.
+
+### Creating multiple root layouts
+
+To create multiple [root layouts](/docs/app/api-reference/file-conventions/layout#root-layouts), remove the top-level `layout.js` file, and add a `layout.js` file inside each route group. This is useful for partitioning an application into sections that have a completely different UI or experience. The `<html>` and `<body>` tags need to be added to each root layout.
+
+<Image
+  alt="Route Groups with Multiple Root Layouts"
+  srcLight="/docs/light/route-group-multiple-root-layouts.png"
+  srcDark="/docs/dark/route-group-multiple-root-layouts.png"
+  width="1600"
+  height="687"
+/>
+
+In the example above, both `(marketing)` and `(shop)` have their own root layout.
+
+</AppOnly>
