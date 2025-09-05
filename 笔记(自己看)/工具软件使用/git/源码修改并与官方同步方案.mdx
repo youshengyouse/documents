@@ -1,0 +1,121 @@
+---
+title: Laravel
+---
+
+使用分支，修改本地源码并与官方同步方案
+
+## Laravel/laravel
+
+### 1. 初始克隆与分支设置
+
+```bash
+# 当前目录：/www2024/0_common/php/laravel
+git clone git@github.com:laravel/laravel.git laravel-20250709
+cd laravel-20250709
+git checkout -b 本地有注释  # 创建并切换到本地开发分支
+git checkout -m laravel脚手架本地有注释 # 改名了
+```
+
+### 2. 进行本地修改
+
+在`laravel脚手架本地有注释`分支上添加注释、调试代码或其他修改：
+
+```bash
+# 提交本地修改
+git add .
+git commit -m "首页添加注释"
+```
+
+### 3. 同步官方更新
+
+当官方仓库有更新时，通过以下步骤同步：
+
+```bash
+# 切换到主分支（跟踪官方代码）
+# git checkout master
+git checkout 12.x
+# 拉取官方更新
+# git pull origin master
+git pull origin 12.x
+# From github.com:laravel/laravel
+#  * branch              12.x       -> FETCH_HEAD
+# Already up to date.
+# 切换回本地开发分支
+git checkout laravel脚手架本地有注释
+
+# 将官方更新合并到本地分支
+# git merge master
+git merge 12.x
+```
+
+总结 4 步：
+
+- 1. 切换到主分支（跟踪官方代码）
+- 2. 拉取官方更新(可以先 fetch 一下)
+- 3. 切换回本地开发分支
+- 4. 将官方更新合并到本地分支
+
+如果合并时出现冲突，需要手动解决冲突，然后提交：
+
+```bash
+# 解决冲突后
+git add .
+git commit -m "合并官方更新"
+```
+
+### 4. 简化操作的别名（可选）
+
+为了简化同步流程，可以设置 Git 别名：
+
+```bash
+# 在~/.gitconfig中添加以下别名
+[alias]
+    sync-illuminate = "!git checkout master && git pull origin master && git checkout local-dev && git merge master"
+```
+
+之后同步只需运行：
+
+```bash
+git sync-illuminate
+```
+
+### 注意事项
+
+1. **避免修改核心逻辑**：仅添加注释和调试代码，避免改变原有功能，否则同步时冲突会很频繁。
+2. **定期同步**：定期拉取官方更新，减少合并冲突的复杂度。
+3. **使用补丁文件（可选）**：如果修改较多，可以将本地修改导出为补丁文件，同步后重新应用：
+
+   ```bash
+   # 导出补丁
+   git diff master > local_changes.patch
+
+   # 应用补丁
+   git apply local_changes.patch
+   ```
+
+### 同步到 gitee 上
+
+```bash
+cd /www2024/0_common/php/laravel/laravel-20250709
+# git remote add origin https://gitee.com/chinabangong/source_laravel_laravel.git
+git remote add gitee https://gitee.com/chinabangong/source_laravel_laravel.git # origin改为gitee
+git push -u gitee "laravel脚手架本地有注释"
+git push -u gitee "12.x"
+```
+
+## laravel/framework
+
+```bash
+# 当前目录：/www2024/0_common/php/laravel
+git clone git@github.com:laravel/framework.git framework-20250709
+cd framework-20250709
+git checkout -b laravel框架本地有注释  # 创建并切换到本地开发分支
+```
+
+### 提交到 gitee 上
+```
+cd /www2024/0_common/php/laravel/framework-20250709
+git remote add gitee https://gitee.com/chinabangong/source_laravel_illuminate.git
+git push -u gitee "laravel框架本地有注释"
+git push -u gitee "12.x"
+```

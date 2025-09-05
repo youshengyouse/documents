@@ -1,0 +1,82 @@
+---
+title: fumadocs指南笔记
+---
+
+## 安装
+
+### Fumadocs 官方
+
+```bash
+# 确保不用国内镜像，否则会导致安装失败
+root@pan:/www2024/5_docs# pnpm config list
+registry=https://registry.npmjs.org/ # 这里是npm的镜像
+# 下面全程开启科学上网
+# 当前目录 /www2024/5_docs
+# git clone git@github.com:fuma-nama/fumadocs.git
+git clone githubyoushengyouse:fuma-nama/fumadocs.git official
+# 上面在省图书馆时，开启科学上网反而慢，改为不科学上网
+root@pan:/www2024/5_docs/fumadocs/official# pnpm i
+root@pan:/www2024/5_docs/fumadocs/official# pnpm run build --filter=./packages/*
+root@pan:/www2024/5_docs/fumadocs/official# pnpm dev  --filter=docs
+```
+
+### nextjs-fumadocs
+
+```bash filename="安装nextjs官方文档" swithcer
+git clone githubyoushengyouse:fuma-nama/nextjs-fumadocs.git # 不开启科学上网
+cd nextjs-fumadocs
+pnpm i # 开启科学上网
+pnpm dev
+```
+
+```bash filename="配置GITHUB_TOKEN " swithcer
+# https://github.com/settings/tokens，新建PAT,note为nextjs-fumadocs，Expiration为 No expiration，
+# Select scopes中只选择repo(5种权限)
+# g混淆h代码p_WK6CroRTHugI6Ju2c9dy1t0oTY3v7e4Gh6DM
+# 新建或修改.env文件，添加
+GIT混淆HUB_TOKEN=g混淆h代码p_WK6CroRTHugI6Ju2c9dy1t0oTY3v7e4Gh6DM
+```
+
+### 手工创建 fumadocs 项目
+
+```bash
+# 参考 https://nextjs.org/learn
+# https://nextjs.org/learn/dashboard-app/getting-started
+# npx create-next-app@latest nextjs-dashboard --example "https://github.com/vercel/next-learn/tree/main/dashboard/starter-example" --use-pnpm
+# 参考：https://react.dev/learn/build-a-react-app-from-scratch
+# 第1步
+root@pan:/www2024/5_docs/fumadocs# pnpm create vite@latest my-app -- --template react
+ WARN  GET https://registry.npmmirror.com/create-vite error (ETIMEDOUT). Will retry in 10 seconds. 2 retries left.
+.../197be965eab-30f4                     |   +1 +
+.../197be965eab-30f4                     | Progress: resolved 1, reused 0, downloaded 1, added 1, done
+│
+◇  Select a framework:
+│  React
+│
+◇  Select a variant:
+│  TypeScript
+│
+◇  Scaffolding project in /www2024/5_docs/fumadocs/my-app...
+│
+└  Done. Now run:
+
+  cd my-app
+  pnpm install
+  pnpm run dev
+
+# 第2步
+  pnpm i next@latest
+
+  # 第3步 修改package.json
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+
+  # 第4步 新建app目录及布局文件,页面
+
+  # 第5步 安装fumadocs
+  pnpm add fumadocs-ui fumadocs-core
+```

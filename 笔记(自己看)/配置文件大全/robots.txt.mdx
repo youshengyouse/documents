@@ -1,0 +1,82 @@
+---
+title: robots.txt
+---
+
+robots.txt 是一个存放在网站根目录下的文本文件，用于告知搜索引擎爬虫（如 Googlebot、Bingbot 等）哪些页面可以被抓取，哪些页面不应该被抓取。它是网站与搜索引擎之间的“协议”，虽不具备强制约束力，但主流搜索引擎通常会遵守其规则。
+
+### 一、基本作用
+
+- **控制爬虫访问范围**：避免爬虫抓取敏感内容（如后台页面、私人数据）或无意义内容（如重复页面、测试页面）。
+- **优化爬虫效率**：引导爬虫优先抓取重要页面（如首页、核心内容页），减少对服务器资源的无效消耗。
+
+### 二、文件位置与命名要求
+
+- **位置**：必须放在网站的根目录下（例如 `https://example.com/robots.txt`），否则爬虫无法识别。
+- **命名**：文件名必须为 `robots.txt`（全小写，无其他后缀），大小写错误会导致文件失效。
+
+### 三、基本语法结构
+
+robots.txt 由若干条“规则组”组成，每条规则针对特定爬虫或所有爬虫，包含以下核心指令：
+
+#### 1. `User-agent`：指定目标爬虫
+
+- 用于定义规则适用的搜索引擎爬虫，格式为 `User-agent: [爬虫名称]`。
+  - `*` 代表所有爬虫（如 `User-agent: *`）。
+  - 特定爬虫名称（如 Google 爬虫为 `Googlebot`，Bing 爬虫为 `Bingbot`）。
+
+#### 2. `Disallow`：禁止抓取的路径
+
+- 用于指定不允许爬虫访问的 URL 路径，格式为 `Disallow: [路径]`。
+  - 路径支持通配符（部分搜索引擎支持，如 `*` 代表任意字符，`$` 代表结尾）。
+  - 示例：
+    - `Disallow: /admin/`：禁止抓取 `/admin/` 目录下的所有内容。
+    - `Disallow: /private.html`：禁止抓取 `private.html` 单个文件。
+    - `Disallow: /*.pdf$`：禁止抓取所有 PDF 文件（部分爬虫支持）。
+
+#### 3. `Allow`：允许抓取的路径（补充 `Disallow`）
+
+- 用于在 `Disallow` 的范围内“例外”允许抓取某些内容，格式为 `Allow: [路径]`。
+  - 示例：
+    - `Disallow: /images/`  
+      `Allow: /images/public/`  
+      表示禁止抓取 `/images/` 目录，但允许抓取 `/images/public/` 子目录。
+
+#### 4. `Sitemap`：指定网站地图位置
+
+- 可选指令，用于告知爬虫网站地图（Sitemap）的 URL，帮助爬虫更全面地发现页面，格式为 `Sitemap: [URL]`。
+  - 示例：`Sitemap: https://example.com/sitemap.xml`。
+
+### 四、示例解析
+
+以下是一个典型的 robots.txt 示例，包含对所有爬虫和特定爬虫的规则：
+
+```
+# 对所有爬虫的规则
+User-agent: *
+Disallow: /admin/          # 禁止访问后台目录
+Disallow: /tmp/            # 禁止访问临时文件目录
+Allow: /tmp/public/        # 允许访问临时目录下的public子目录
+Disallow: /search?*        # 禁止抓取所有搜索结果页（带参数）
+Sitemap: https://example.com/sitemap.xml  # 网站地图位置
+
+# 对Googlebot的单独规则（优先级高于通用规则）
+User-agent: Googlebot
+Disallow: /private/        # 额外禁止Googlebot访问/private/目录
+```
+
+### 五、注意事项
+
+1. **无强制约束力**：恶意爬虫可能无视 robots.txt，因此敏感内容需通过密码保护、权限控制等方式额外防护。
+2. **规则优先级**：特定爬虫（如 `Googlebot`）的规则优先于通用规则（`User-agent: *`）。
+3. **路径匹配逻辑**：爬虫匹配路径时从根目录开始，例如 `Disallow: /a` 会禁止 `/a.html`、`/a/b.html` 等，但不会禁止 `/ba.html`。
+4. **空规则的含义**：
+   - 若 `Disallow:` 后无内容（`Disallow: `），表示允许所有爬虫访问（不限制）。
+   - 若网站根目录下没有 robots.txt，爬虫会默认抓取所有可访问页面。
+5. **大小写敏感**：URL 路径的大小写可能影响匹配（取决于服务器系统），建议规则与实际路径保持一致。
+
+### 六、工具与测试
+
+- **验证工具**：Google 的 [Robots Testing Tool](https://search.google.com/search-console/robots-testing-tool) 可检查 robots.txt 语法并模拟爬虫访问。
+- **状态码**：正常的 robots.txt 应返回 HTTP 200 状态码；若不存在，服务器通常返回 404，但不影响爬虫抓取。
+
+通过合理配置 robots.txt，可有效管理搜索引擎对网站的抓取行为，提升 SEO 效率和网站安全性。

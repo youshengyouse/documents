@@ -1,0 +1,17 @@
+---
+title: 前端
+---
+
+## Nova 中的 public 目录如何处理
+
+由于 nova 是在项目之外，对于 nova 中 vue 组件中的修改，不会立即生效，所以需要手动将 public 目录链接到项目中，这样就可以立即生效了。
+
+```bash
+ ln -s /www2024/1_doing/sidamingxiao-20250709/vendor/laravel/nova/public /www2024/1_doing/sidamingxiao-20250709/public/vendor/nova
+```
+
+```bash
+root@pan:/www2024/0_common/php/laravel/nova-5.7.3 npm run watch
+```
+
+现在修改 vue 组件，会立即生效。

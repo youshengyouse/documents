@@ -1,0 +1,24 @@
+---
+title: 事件
+---
+
+## 4 个事件
+
+事件命名有意思，一个有完成时，一个用进行时
+
+### NovaServiceProviderRegistered(完成时)
+
+- 执行时间： 对应中间件 ServingNova，是一个应用中间件，最后一个，在路由匹配之前，中间件 handle 第 1 个参数是 request，通过 request 判断是不是 nova 后台请求，是的吗，就临时分发 NovaServiceProviderRegistered 事件
+- 哪些地方注册事件监听器，一般在服务提供者中注册，用专门方法 Nova::booted()方法来注册，\Laravel\Nova\NovaCoreServiceProvider::boot 中注册事件监听器，这个监听器里面做 3 件事，
+- - 注册 NovaServiceProvider
+- - 注册工具(仪表盘和资源管理器)
+- - 注册资源(动作资源)给所有资源加策略，其它资源可以在服务提供者加，\Laravel\Nova\NovaApplicationServiceProvider::resources 自动注册 Nova 下面的资源
+
+### ServingNova（进行时)
+
+- 执行时间：
+- 注册监听器(Nova::serving())
+- - \Laravel\Nova\NovaCoreServiceProvider::boot，注册 Json 变量，翻译语言包及一些传给 js 的变量
+- - \Laravel\Nova\NovaApplicationServiceProvider::boot
+
+思考：我们可以在服务提供者中向这两个事件注册自己的监听器

@@ -1,0 +1,296 @@
+---
+title: lms通用部份
+---
+
+## lms 安装通用部分
+
+### 清单
+
+### lms 部分
+
+> 本地文件根目录：`F:\www2024-in-wsl\2_demo\`
+
+| 本地域名                                 | gitee 仓库                                                            | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| ---------------------------------------- | --------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| http://academy.lms                       | [demo_lms_academy](https://gitee.com/chinabangong/demo_lms_academy)   | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://edulab.lms                        | [demo_lms_edulab](https://gitee.com/chinabangong/demo_lms_edulab)     | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://infix.lms                         | [demo_lms_infix](https://gitee.com/chinabangong/demo_lms_infix)       | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://lernen.lms                        | [demo_lms_lernen](https://gitee.com/chinabangong/demo_lms_lernen)     | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://ready.lms                         | [demo_lms_ready](https://gitee.com/chinabangong/demo_lms_ready)       | 阿里云盘 | https://nullphpscript.com/?s=ready                                                                                                                                                                        | [codecanyon](https://codecanyon.net/item/ready-lms-complete-learning-management-system-websites-mobile-app-with-admin-panel/54616851) [文档](https://readylms.app/docs) |
+| http://rocket.lms                        | [demo_lms_rocket](https://gitee.com/chinabangong/demo_lms_rocket)     | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://skillgro.lms                      | [demo_lms_skillgro](https://gitee.com/chinabangong/demo_lms_skillgro) | 阿里云盘 | 源文件下载地址                                                                                                                                                                                            | 演示                                                                                                                                                                    |
+| http://eschool.lms                       | [demo_lms_eschool](https://gitee.com/chinabangong/eschool)            | 阿里云盘 | [eSchool SaaS - School Management System with Student Parents Flutter App Laravel Admin](https://nullphpscript.com/post/eschool-saas-school-management-student-parents-flutter-app-laravel-admin-nulled/) | [codecanyon](https://codecanyon.net/item/eschool-saas-school-management-system-with-student-parents-teacher-flutter-app-laravel-admin/49307764)                         |
+| [http://faculty.lms](http://faculty.lms) | [demo_lms_faculty](https://gitee.com/chinabangong/demo_lms_faculty)   | 阿里云盘 | https://nullcave.club/resources/faculty-lms-learning-management-system-ai-powered-saas.6779/                                                                                                              | [演示](https://codecanyon.net/item/faculty-lms-learning-management-system-saas-with-ai-assistant/47989504) [官方文档](https://faculty.spagreen.net/docs/)               |
+
+## 修改 hosts
+
+```
+修改文件 C:\\Windows\\System32\\drivers\\etc\\hosts
+
+127.0.0.1 academy.lms
+
+127.0.0.1 edulab.lms
+
+127.0.0.1 infix.lms
+
+127.0.0.1 lernen.lms
+
+127.0.0.1 ready.lms
+
+127.0.0.1 rocket.lms
+
+127.0.0.1 skillgro.lms
+
+127.0.0.1 faculty.lms
+```
+
+## nginx 配置
+
+```nginx
+server
+    {
+        listen 80;
+        #listen [::]:80;
+        server_name ~^(?<DOMAIN>.+)\.lms;
+        index index.html index.htm index.php default.html default.htm default.php;
+
+        set $ROOT '';
+        #if ($DOMAIN = rocket) {
+        #   set $ROOT /www2024/2_demo/lms/rocket/public;
+        #}
+        if ($DOMAIN ~* (edulab|lernen|ready|rocket|skillgro)) {
+           set $ROOT /www2024/2_demo/lms/$DOMAIN/public;
+        }
+
+        if ($DOMAIN ~* (academy|infix)) {
+           set $ROOT /www2024/2_demo/lms/$DOMAIN;
+        }
+
+        root  $ROOT;
+        include rewrite/laravel.conf;
+        #error_page   404   /404.html;
+
+        # Deny access to PHP files in specific directory
+        #location ~ /(wp-content|uploads|wp-includes|images)/.*\.php$ { deny all; }
+
+        include enable-php-pathinfo.conf;
+
+        location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+        {
+            expires      30d;
+        }
+
+          # 加下面4行
+        location = /livewire/livewire.js {
+            expires off;
+            try_files $uri $uri/ /index.php?$query_string;
+        }
+        location ~ .*\.(js|css)?$
+        {
+            expires      12h;
+        }
+
+        location ~ /.well-known {
+            allow all;
+        }
+
+        location ~ /\.
+        {
+            deny all;
+        }
+
+        access_log /www2024/0_common/nginx/logs/demo_lms_access.log;
+
+        # 文件名中不支持变量
+        # https://trac.nginx.org/nginx/ticket/2307中有讲
+        error_log  /www2024/0_common/nginx/logs/demo_lms_error.log  debug;
+    }
+```
+
+## 缓存目录权限
+
+```bash
+ps -ef|grep php-fpm
+# 用户 ximenchuixue,组 phpers
+# /usr/local/php/etc/php-fpm.conf文件中
+user = libai
+group = phpers2025
+```
+
+```bash
+# 目录和文件为 用户名:用户组 所有
+sudo chown -R libai:phpers2025 /www2024/2_demo/lms/
+
+sudo chmod -R 755 /www2024/2_demo/lms/
+# 缓存可写目录
+# edulab|infix|lernen|ready|rocket|skillgro
+sudo chmod -R 775 /www2024/2_demo/lms/edulab/storage /www2024/2_demo/lms/edulab/bootstrap/cache /www2024/2_demo/lms/infix/storage /www2024/2_demo/lms/infix/bootstrap/cache /www2024/2_demo/lms/lernen/storage /www2024/2_demo/lms/lernen/bootstrap/cache /www2024/2_demo/lms/ready/storage /www2024/2_demo/lms/ready/bootstrap/cache /www2024/2_demo/lms/rocket/storage /www2024/2_demo/lms/rocket/bootstrap/cache /www2024/2_demo/lms/skillgro/storage /www2024/2_demo/lms/skillgro/bootstrap/cache
+
+sudo chmod -R 775 /www2024/2_demo/lms/faculty/storage /www2024/2_demo/lms/faculty/bootstrap/cache
+
+
+# 完全安装完后可以修改
+sudo chmod 640 /www2024/2_demo/lms/edulab/.env /www2024/2_demo/lms/infix/.env /www2024/2_demo/lms/lernen/.env /www2024/2_demo/lms/ready/.env /www2024/2_demo/lms/rocket/.env /www2024/2_demo/lms/skillgro/.env
+```
+
+## 与 gitee 远程仓库关联
+
+#### 提前准备 ssh
+
+提前准备 ssh 公钥(两个，一个用于 youshengyouse,一个用于 chinabangong)
+
+```bash
+# 第1个秘钥
+ssh-keygen -t rsa -C '19936926974@189.cn' -f ~/.ssh/id_rsa_1
+cat id_rsa_1.pub
+
+# 第2个秘钥
+ssh-keygen -t rsa -C '17388977077' -f ~/.ssh/id_rsa_2
+
+# win11下面的密钥
+ssh-keygen -t rsa -C '19722008@163.com'
+PS F:\www2025-in-win11\5_docs> ssh-keygen -t rsa -C '19722008@163.com'
+Generating public/private rsa key pair.
+Enter file in which to save the key (C:\Users\qianjin/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in C:\Users\qianjin/.ssh/id_rsa
+Your public key has been saved in C:\Users\qianjin/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:Qph5GBRyUby0tIM041Na3LTLqXoBSp8mlPQSfCuepAE 19722008@163.com
+The key's randomart image is:
++---[RSA 3072]----+
+| ...**.o.        |
+|E +o=*B ..       |
+|.. B=@o+.        |
+|. B Oo=. o       |
+| B * +..S        |
+|. = + .o         |
+|   o  ..         |
+|     ..          |
+|    ..           |
++----[SHA256]-----+
+```
+
+编辑 config
+
+```ini
+Host youshengyouse
+  HostName gitee.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_2
+  PreferredAuthentications publickey
+  #IdentitiesOnly yes
+
+Host chinabangong
+  HostName gitee.com
+  User git
+  IdentityFile ~/.ssh/id_rsa_1       # 这里易写错，写成_1.pub
+  PreferredAuthentications publickey
+  #IdentitiesOnly yes
+
+Host githubyoushengyouse                                                                       HostName github.com                                                                        User git                                                                                   IdentityFile ~/.ssh/id_rsa_2
+    PreferredAuthentications publickey
+    #IdentitiesOnly yes
+```
+
+分别以 199xxxx74 和 173xxxx7077 登录 https://gitee.com/profile/sshkeys ，添加对应的 key 后测试
+
+```bash
+ssh -T chinabangong
+ssh -T youshengyouse
+ssh -T git@github.com
+ssh -T githubyoushengyouse
+```
+
+登录 github，添加 morefine-wsl2-ubuntu-2024-08-01-root，测试
+
+```sql
+ssh -T githubyoushengyouse
+# git clone git@github.com:inertiajs/inertiajs.com.git
+# 改为 git clone githubyoushengyouse:inertiajs/inertiajs.com.git
+```
+
+### github
+
+```bash
+git clone githubyoushengyouse:lazychaser/laravel-nestedset.git
+git clone githubyoushengyouse:cable8mm/xeed.git
+```
+
+#### 提交
+
+```shell
+# fatal: detected dubious ownership in repository 解决办法如下
+git config --global --add safe.directory /www2024/2_demo/lms/skillgro
+git config --global --add safe.directory /www2024/2_demo/lms/rocket
+git config --global --add safe.directory /www2024/2_demo/lms/ready
+git config --global --add safe.directory /www2024/2_demo/lms/lernen
+git config --global --add safe.directory /www2024/2_demo/lms/infix
+git config --global --add safe.directory /www2024/2_demo/lms/edulab
+git config --global --add safe.directory /www2024/2_demo/lms/academy
+git config --global --add safe.directory /www2024/2_demo/lms/faculty
+```
+
+```shell
+# 切换到对应目录
+git remote add lms chinabangong:chinabangong/demo_lms_skillgro.git
+git remote add lms chinabangong:chinabangong/demo_lms_rocket.git
+git remote add lms chinabangong:chinabangong/demo_lms_ready.git
+git remote add lms chinabangong:chinabangong/demo_lms_lernen.git
+git remote add lms chinabangong:chinabangong/demo_lms_infix.git
+git remote add lms chinabangong:chinabangong/demo_lms_edulab.git
+git remote add lms chinabangong:chinabangong/demo_lms_academy.git
+git remote add lms chinabangong:chinabangong/demo_lms_faculty.git
+git remote add nestedset chinabangong:chinabangong/yousheng_laravel_nestedset.git
+git add .
+git commit -m 初始
+git push -u lms master
+```
+
+## 数据库准备
+
+### 新建数据库和用户
+
+```shell
+root@morefine-ubuntu20:/www/2-doing/sidamingxiao.com# mysql -u root -p
+Enter password:  # 输入密码my2024
+
+# 创建数据库 edulab|lernen|ready|rocket|skillgro|academy|infix
+create database demo_lms_edulab default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_lernen default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_ready default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_rocket default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_skillgro default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_academy default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_infix default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database demo_lms_faculty default character set utf8mb4 collate utf8mb4_unicode_ci;
+# 创建用户，存在无须建
+create user 'qianjin'@'localhost' identified by 'n063a9';
+ALTER USER 'qianjin'@'localhost' IDENTIFIED BY 'good2025'; # 使用新的密码
+
+grant all on demo_lms_edulab.* to qianjin@localhost;
+grant all on demo_lms_lernen.* to qianjin@localhost;
+grant all on demo_lms_ready.* to qianjin@localhost;
+grant all on demo_lms_rocket.* to qianjin@localhost;
+grant all on demo_lms_skillgro.* to qianjin@localhost;
+grant all on demo_lms_academy.* to qianjin@localhost;
+grant all on demo_lms_infix.* to qianjin@localhost;
+grant all on demo_lms_faculty.* to qianjin@localhost;
+
+flush privileges;
+\q
+```
+
+### 修改.env
+
+```shell
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+#DB_DATABASE=demo_lms_edulab
+# demo_lms_edulab demo_lms_lernen demo_lms_ready demo_lms_rocket demo_lms_skillgro demo_lms_academy  demo_lms_infix
+DB_DATABASE=demo_lms_faculty
+DB_USERNAME=qianjin
+DB_PASSWORD=good2025
+```

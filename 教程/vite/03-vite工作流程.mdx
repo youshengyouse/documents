@@ -1,0 +1,123 @@
+---
+title: 第03课：vite dev 执行流程
+---
+## vite dev 执行流程跟踪
+<Mermaid
+chart="
+flowchart LR
+    A[package.json中scripts中 vite dev] --> B[node_modules/.bin/vite]
+    B --> C[packages/vite/bin/vite.js]
+    C --> D[packages/vite/src/node/cli.ts]
+    D --> E[创建服务器，使用connect包]"
+/>
+
+
+Vite 的开发服务器（dev server）工作流程可以分为以下几个关键阶段，理解这些有助于掌握 Vite 的核心原理：
+
+
+### **1. 初始化阶段**
+#### **1.1 配置解析**
+- **加载配置文件**：读取 `vite.config.js` 或 CLI 参数，合并默认配置。
+- **插件处理**：调用插件的 `config` 钩子，允许插件修改配置（如路径别名、环境变量）。
+
+#### **1.2 依赖预构建**
+- **扫描入口文件**：从入口文件（如 `index.html` 或 `main.js`）开始递归扫描所有导入的模块。
+- **识别依赖**：
+  - **裸模块依赖**（如 `import React from 'react'`）：被视为外部依赖，需要预构建。
+  - **本地文件**（如 `.js`、`.css`、`.vue`）：不预构建，按需处理。
+- **构建依赖**：
+  - 使用 **esbuild** 将 CommonJS/UMD 转换为 ESM。
+  - 将结果缓存到 `node_modules/.vite` 目录，加速后续启动。
+
+#### **1.3 服务器启动**
+- **创建 HTTP 服务器**：基于 Koa 启动本地开发服务器（默认端口 5173）。
+- **注册中间件**：
+  - **静态文件服务**：处理 `/public` 等静态资源。
+  - **模块请求处理**：拦截浏览器对 JS、CSS、图片等资源的请求。
+  - **HMR 服务**：建立 WebSocket 连接，监听文件变化并推送更新。
+
+
+### **2. 请求处理阶段**
+#### **2.1 浏览器请求入口 HTML**
+- **请求路径**：`http://localhost:5173/`
+- **处理逻辑**：
+  - 读取 `index.html` 文件。
+  - 将其中的 `<script type="module">` 路径转换为 Vite 可处理的格式（如添加 `/@fs/` 前缀）。
+  - 注入 HMR 客户端代码：
+    ```html
+    <script type="module">
+      import '/@vite/client'; // Vite 热更新客户端
+    </script>
+    ```
+
+#### **2.2 浏览器请求 JS 模块**
+- **请求路径**：如 `/src/main.js`
+- **处理逻辑**：
+  - **静态文件读取**：从文件系统读取原始 JS 文件。
+  - **转换**：
+    - **ES 模块转换**：将 CommonJS 模块转换为 ESM（如 `module.exports` 转换为 `export`）。
+    - **语法转译**：使用 esbuild 转译现代 JS 语法（如 JSX、TypeScript）。
+  - **路径重写**：
+    - 将裸模块导入（如 `import React from 'react'`）转换为 `/node_modules/.vite/react.js?v=hash`。
+    - 将相对路径转换为绝对路径（如 `./utils.js` → `/src/utils.js`）。
+  - **注入 HMR 代码**：为支持热更新的模块添加 HMR 处理逻辑。
+
+#### **2.3 浏览器请求 CSS**
+- **请求路径**：如 `/src/style.css`
+- **处理逻辑**：
+  - **CSS 转换**：
+    - 解析 CSS 文件（如处理 `@import`、`url()`）。
+    - 应用 PostCSS 转换（如 autoprefixer）。
+  - **注入方式**：
+    - **开发环境**：通过 JS 动态创建 `<style>` 标签注入（支持 HMR）。
+    - **生产环境**：提取到单独的 CSS 文件（通过 Rollup）。
+
+#### **2.4 浏览器请求其他资源**
+- **图片、字体等**：
+  - 返回原始文件或转换为 DataURL（根据配置）。
+- **JSON、WebAssembly 等**：
+  - 转换为 ESM 模块（如 `export default { ... }`）。
+
+
+### **3. 热更新（HMR）流程**
+#### **3.1 文件监听**
+- Vite 使用 `chokidar` 监听项目文件变化。
+
+#### **3.2 变化触发**
+- 当文件修改时：
+  - **CSS 文件**：直接推送新的 CSS 内容，替换现有 `<style>` 标签。
+  - **JS/TS 模块**：
+    - 如果模块声明了 HMR 接受函数（`import.meta.hot.accept`），仅更新该模块。
+    - 否则触发全页面刷新。
+
+#### **3.3 客户端更新**
+- **WebSocket 消息**：服务器通过 WebSocket 发送更新通知。
+- **客户端处理**：HMR 客户端接收消息，执行模块替换逻辑。
+
+
+### **4. 生产构建阶段**
+虽然与开发服务器不同，但 Vite 的构建流程值得一提：
+- **基于 Rollup**：使用 Rollup 打包代码，应用 Tree-shaking。
+- **CSS 处理**：提取并压缩 CSS 到单独文件。
+- **资源优化**：生成哈希文件名、压缩图片等。
+- **代码分割**：自动分割动态导入的模块。
+
+
+### **关键优势**
+1. **速度快**：
+   - **按需编译**：仅处理当前请求的模块，无需提前构建整个项目。
+   - **esbuild 预构建**：依赖预构建速度比传统工具快 10-100 倍。
+2. **开发体验好**：
+   - **HMR 即时响应**：CSS 秒级更新，JS 模块局部替换。
+   - **原生 ESM 支持**：利用浏览器原生模块系统，减少构建步骤。
+
+
+### **示例请求流程**
+1. 浏览器请求 `http://localhost:5173/` → Vite 返回处理后的 `index.html`。
+2. 浏览器解析 HTML，请求 `/src/main.js` → Vite 转换并返回 ESM 格式的 `main.js`。
+3. `main.js` 导入 `'react'` → Vite 将其重写为 `/node_modules/.vite/react.js?v=hash`。
+4. 浏览器请求 CSS 文件 → Vite 处理后通过 `<style>` 注入页面。
+5. 修改 CSS 文件 → Vite 通过 WebSocket 推送更新，客户端替换 `<style>` 内容。
+
+
+通过这种方式，Vite 实现了 **开发环境的极速响应** 和 **生产环境的优化构建** 的平衡。

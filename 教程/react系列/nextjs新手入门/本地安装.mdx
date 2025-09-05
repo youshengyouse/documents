@@ -1,0 +1,103 @@
+---
+title: 本地安装
+---
+
+## 第一步：本地准备 nextjs 源码
+
+```bash
+git clone -b canary --single-branch https://github.com/vercel/next.js.git nextjs-20250717
+cd nextjs-20250717
+git checkout -b wang origin/canary
+pnpm install
+pnpm dev
+```
+
+## 第二步：准备一个 next 项目
+
+```bash
+tom@season:~/www2026/del$ npx create-next-app@latest my-next-app --typescript --eslint
+Need to install the following packages:
+create-next-app@15.4.1
+Ok to proceed? (y) y
+
+✔ Would you like to use Tailwind CSS? … No / Yes
+✔ Would you like your code inside a `src/` directory? … No / Yes
+✔ Would you like to use App Router? (recommended) … No / Yes
+✔ Would you like to use Turbopack for `next dev`? … No / Yes
+✔ Would you like to customize the import alias (`@/*` by default)? … No / Yes
+✔ What import alias would you like configured? … @/*
+Creating a new Next.js app in /home/tom/www2026/del/my-next-app.
+
+Using npm.
+
+Initializing project with template: app-tw
+
+
+Installing dependencies:
+- react
+- react-dom
+- next
+
+Installing devDependencies:
+- typescript
+- @types/node
+- @types/react
+- @types/react-dom
+- @tailwindcss/postcss
+- tailwindcss
+- eslint
+- eslint-config-next
+- @eslint/eslintrc
+
+
+added 401 packages, and audited 402 packages in 1m
+
+166 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+Initialized a git repository.
+
+Success! Created my-next-app at /home/tom/www2026/del/my-next-app
+```
+
+## 第三步：切换为本地的 nextjs
+
+删除 node_modules,package.lock 目录，重新安装依赖。
+
+```bash
+# pnpm add /home/tom/www2026/0_common/js/nextjs-20250717/{packages/next,node_modules/{react,react-dom}}
+pnpm add /home/tom/www2026/0_common/js/nextjs-20250717/packages/next
+```
+
+最后 `package.json` 如下
+
+```json
+{
+  "name": "my-next-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "link:/home/tom/www2026/0_common/js/nextjs-20250717/packages/next",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+```

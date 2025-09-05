@@ -1,0 +1,24 @@
+---
+title: 重新装lnmp
+---
+
+- https://lnmp.org/download.html 之前安装的是这个，准备换一个
+- https://github.com/linuxeye/lnmp 有 2.7K 星
+
+## 备份
+
+### 备份数据库
+
+```
+root@pan:~/lnmp2.1# mysqldump -u root -p --all-databases > all_databases_backup_20250710.sql
+Enter password:
+root@pan:~/lnmp2.1# mv all_databases_backup_20250710.sql /www2024/0_common/
+```
+
+### 备份网站
+
+## 克隆
+
+```bash
+root@pan:/www2024/0_common# git clone git@github.com:linuxeye/lnmp.git
+```

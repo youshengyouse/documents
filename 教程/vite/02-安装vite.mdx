@@ -1,0 +1,39 @@
+---
+title: 第02课：从零安装vite
+---
+## 本地安装vite
+新建空目录  `~/www2026/4_tutorial/vite/basic`
+```bash filename="安装vite" switcher
+# 当前目录：~/www2026/4_tutorial/vite/basic
+pnpm add vite -D
+```
+```json filename="修改package.json" switcher
+{
+  "name": "basic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite dev"//[!code ++]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1",
+  "devDependencies": {
+    "vite": "^7.0.4" //[!code --]
+    "vite": "file:/home/tom/www2026/0_common/js/vite-20250712/packages/vite/dist" //[!code ++] //dist不能少
+  }
+}
+// 增加 dev 脚本
+// vite改为本地路径后 pnpm update更新
+```
+```bash filename="更新依赖" switcher
+pnpm update
+```
+
+```bash filename="vite源码跟踪" switcher
+tom@season:~/www2026/0_common/js/vite-20250712/packages/vite$ pnpm dev
+# 进入vite包目录，现在可以修改源码
+```

@@ -1,0 +1,120 @@
+---
+title: composer.json
+---
+
+## 模板
+
+```json
+{
+  "$schema": "https://getcomposer.org/schema.json",
+
+  # 基本信息
+  "name": "laravel/laravel", # name：项目标识符，格式为vendor/name。
+  "type": "project", # type：项目类型，project表示这是一个应用程序而非库。
+  "description": "The skeleton application for the Laravel framework.",
+  "keywords": ["laravel", "framework"], # keywords：项目关键词，用于搜索和分类。是一个数组(复数形式一般都是数组)
+  "license": "MIT", # license：开源许可证（MIT）
+
+  # 依赖管理
+  "require": {
+    "php": "^8.2", # PHP 版本：要求 PHP 8.2 及以上。
+    "laravel/framework": "^12.0", #Laravel 框架：核心框架（v12.x）
+    "laravel/tinker": "^2.10.1" #Laravel Tinker：交互式命令行工具。
+  },
+  # 开发环境依赖
+  "require-dev": {
+    "fakerphp/faker": "^1.23", # Faker：生成测试数据的工具。
+    "laravel/pail": "^1.2.2",# Pail：Laravel 日志查看器。
+    "laravel/pint": "^1.13",# Pint：代码格式化工具。
+    "laravel/sail": "^1.41",# Sail：Laravel 的 Docker 开发环境。
+    "mockery/mockery": "^1.6",# Mockery：单元测试模拟对象库。
+    "nunomaduro/collision": "^8.6",# Collision：增强 PHP 错误显示。
+    "phpunit/phpunit": "^11.5.3"# PHPUnit：单元测试框架。
+  },
+
+#  自动加载规则（生产环境）
+  "autoload": {
+    "psr-4": {  # PSR-4 标准：将命名空间映射到目录路径。注意：命令空间前面没有\后面有\，目录前面没有/后面有/，易写错
+      "App\\": "app/",  # App\ → app/（应用核心代码）。
+      "Database\\Factories\\": "database/factories/",  # Database\Factories\ → database/factories/（数据库工厂）。
+      "Database\\Seeders\\": "database/seeders/"  # Database\Seeders\ → database/seeders/（数据库填充器）。
+    }
+  },
+
+#  自动加载规则（开发环境）
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/" # 测试类：Tests\ → tests/（单元测试和功能测试）。
+    }
+  },
+
+  # 脚本命令,可以在命令行使用 composer run 命令名 来执行
+  "scripts": {
+    "post-autoload-dump": [
+      "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump", # 调用 Laravel 框架内置的脚本，用于更新框架的自动加载映射（如服务提供者、配置文件等）。
+      "@php artisan package:discover --ansi" # 用于发现项目中所有安装的包的服务提供者，并生成缓存文件（bootstrap/cache/packages.php），确保包的功能能被框架正常识别。--ansi 表示输出带 ANSI 颜色，更易读。
+    ],
+    # 触发时机：当执行 composer install 或 composer update 后，自动加载文件（vendor/autoload.php）生成或更新时触发。
+
+    "post-update-cmd": [
+      "@php artisan vendor:publish --tag=laravel-assets --ansi --force" # 用于发布 Laravel 核心或第三方包的静态资源（如 CSS、JS、图片等）到项目的 public 目录。--force 表示强制覆盖已存在的文件，确保资源是最新版本；--ansi 同样是带颜色输出。
+    ],
+    # 触发时机：当执行 composer update （更新依赖版本）后自动触发。
+
+
+    "post-root-package-install": [
+      "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"" # 通过 PHP 命令行脚本检查是否存在 .env 文件，如果不存在，则复制 .env.example 为 .env。.env 是 Laravel 项目的环境配置文件，.env.example 是示例模板，这一步确保项目初始化时就有基础的环境配置文件。
+    ],
+    # 触发时机：当通过 composer create-project 创建项目（即项目首次被安装为 “根包”）时触发。
+
+
+    "post-create-project-cmd": [
+      "@php artisan key:generate --ansi", # 生成 Laravel 项目的加密密钥（APP_KEY），用于加密 session、cookie 等敏感数据，必须在项目运行前生成，否则框架会报错。
+      "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"", #检查是否存在 SQLite 数据库文件（database/database.sqlite），如果不存在则创建一个空文件。这是为了支持 Laravel 默认的 SQLite 数据库配置（方便本地开发快速启动，无需配置 MySQL 等数据库）。
+      "@php artisan migrate --graceful --ansi" #执行数据库迁移（migrate），创建默认的数据表（如用户表、密码重置表等）。--graceful 表示如果迁移失败会优雅退出，不抛出致命错误（适合初始化场景）。
+    ],
+    # 触发时机：当通过 composer create-project 完成项目创建后触发（比 post-root-package-install 稍晚，属于项目初始化的收尾步骤）。
+
+    "dev": [
+      "Composer\\Config::disableProcessTimeout", # 禁用 Composer 的进程超时限制，确保开发服务能长期运行。
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+        # 通过 npx concurrently 工具同时启动 4 个进程（并分配不同颜色和名称，方便区分输出）：
+        #php artisan serve：启动 Laravel 内置的开发服务器（默认地址 http://localhost:8000），名称为 server。
+        #php artisan queue:listen --tries=1：启动队列监听器，处理异步任务（如邮件发送、消息推送等），--tries=1 表示任务失败后只重试 1 次，名称为 queue。
+        #php artisan pail --timeout=0：启动 Laravel Pail 工具，实时显示应用日志，--timeout=0 表示不超时，名称为 logs。
+        #npm run dev：启动前端构建工具 Vite 的开发服务器（用于实时编译 JS/CSS），名称为 vite。
+    ],
+    # 触发时机：需手动执行 composer run dev 触发，是 Laravel 12 新增的 “一站式开发命令”。
+
+    "test": [
+    "@php artisan config:clear --ansi",# 清除配置缓存，确保测试时使用的是最新配置（避免缓存导致的配置不一致问题）。
+     "@php artisan test" #执行 Laravel 内置的测试命令（基于 PHPUnit），运行 tests 目录下的测试用例，验证代码功能是否正常。
+     ]
+    # 触发时机：需手动执行 composer run test 触发，用于运行项目测试。
+  },
+
+
+# 额外配置(extra)
+  "extra": {
+    "laravel": {
+      "dont-discover": [] # dont-discover：指定不自动发现的包（空数组表示所有包都自动发现）。
+    }
+  },
+  # 额外配置(config)
+  "config": {
+    "optimize-autoloader": true, # 优化设置：optimize-autoloader：生成优化的类映射（提升性能）。
+    "preferred-install": "dist", # preferred-install：优先从 dist 包安装。
+    "sort-packages": true, # sort-packages：按字母顺序排列依赖。
+    "allow-plugins": { # 插件权限：允许 Pest 测试框架和 HTTP 客户端发现插件。
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true
+    }
+  },
+
+
+
+# 稳定性设置
+  "minimum-stability": "stable", # 依赖稳定性：仅安装稳定版本的包，优先使用稳定版本。
+  "prefer-stable": true
+}
+```

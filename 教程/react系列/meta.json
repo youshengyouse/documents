@@ -1,0 +1,12 @@
+{
+  "title": "React系列",
+  "description": "A demo for Fumadocs OpenAPI",
+  "root": true,
+  "icon": "Shapes",
+  "pages": [
+    "Fumadocs新手入门/04-样式",
+    "components",
+    "---My Separator---",
+    "./nested/page"
+  ]
+}

@@ -1,0 +1,98 @@
+---
+title: package.json
+---
+
+## 模板
+
+```json
+{
+    "$schema": "https://json.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "axios": "^1.8.2",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^1.2.0",
+        "tailwindcss": "^4.0.0",
+        "vite": "^6.2.4"
+    },
+     "pnpm": {
+        "overrides": { //这是pnpm独有的，会覆盖依赖中配置的next，等
+        "next": "file:/home/tom/www2026/0_common/js/next-20250716/tarballs/next.tar",
+        "@next/mdx": "file:/home/tom/www2026/0_common/js/next-20250716/tarballs/next-mdx.tar",
+        "@next/env": "file:/home/tom/www2026/0_common/js/next-20250716/tarballs/next-env.tar",
+        "@next/bundle-analyzer": "file:/home/tom/www2026/0_common/js/next-20250716/tarballs/next-bundle-analyzer.tar"
+        }
+  }
+```
+
+## type
+
+### module
+
+当 type 被设为 "module" 时，项目里的 .js 文件会被当作 ES6 模块来处理。这意味着可以使用 import/export 语法，就像这样：
+
+```js
+import { func } from "./module.js"; // 导入模块
+export const data = {
+  /* ... */
+}; // 导出模块
+```
+
+### commonjs（默认值）
+
+.js 文件就会被视为 CommonJS 模块，此时要使用 require/module.exports 语法，
+
+```js
+const func = require("./module.js"); // 导入模块
+module.exports = { func }; // 导出模块
+```
+
+提示：文件扩展名的影响
+.mjs 文件：不管 type 属性如何设置，.mjs 文件始终会被当作 ES6 模块。
+.cjs 文件：不管 type 属性怎样，.cjs 文件都属于 CommonJS 模块。
+.js 文件：其模块类型由 type 属性来决定。
+
+## engines
+
+```json
+"engines": {
+  "node": "^20.19.0 || >=22.12.0"  // 兼容 Node.js 20.19.0 及以上（但不包括 21.x） 或 22.12.0 及以上 的版本。
+}
+```
+
+## packageManager
+
+```json
+"packageManager": "npm@10.12.4",
+```
+
+项目使用 pnpm 作为包管理器。
+推荐使用的 pnpm 版本为 10.12.4。
+
+```bash
+tom@season:~/www2026/0_common/js/vite-20250712$ pnpm -v
+10.12.4
+```
+
+## simple-git-hooks
+
+simple-git-hooks 是一个 npm 包，用于简化 Git 钩子的管理。Git 钩子是在 Git 执行特定操作（如提交、推送）前 / 后自动触发的脚本。通过 simple-git-hooks，你可以直接在 package.json 中配置这些钩子，而不需要手动编辑 .git/hooks 目录下的脚本文件。
+
+```json
+"simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged --concurrent false"
+}
+```
+
+这个配置定义了一个 pre-commit 钩子，它会在你执行 git commit 命令时自动触发。具体来说：
+pre-commit：是 Git 钩子的一种，在提交代码前执行。如果钩子执行失败（返回非零退出码），Git 会终止提交过程。
+pnpm exec lint-staged --concurrent false：
+pnpm exec：执行项目本地安装的命令（无需全局安装）。
+lint-staged：一个工具，只对 Git 暂存区（staged）的文件执行指定的命令（如代码检查、格式化）。
+--concurrent false：禁用并行执行，确保命令按顺序执行（避免冲突）。

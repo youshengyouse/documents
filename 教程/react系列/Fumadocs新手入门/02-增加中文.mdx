@@ -1,0 +1,243 @@
+---
+title: i18n增加中文
+---
+
+## 中文
+
+参考 :http://localhost:3000/docs/ui/internationalization
+
+目录结构参考：examples/i18n
+
+### 01: /src/lib/i18n.ts
+
+```ts filename="/src/lib/i18n.ts" switcher
+// /src/lib/i18n.ts
+import type { I18nConfig } from "fumadocs-core/i18n";
+
+export const i18n: I18nConfig = {
+  defaultLanguage: "en",
+  languages: ["en", "cn"],
+  hideLocale: "default-locale",
+};
+```
+
+### 02: 修改/src/lib/source.ts
+
+```ts
+// /src/lib/source.ts
+import { i18n } from "@/lib/i18n";
+import { loader } from "fumadocs-core/source";
+export const source = loader({
+  i18n,
+  // other options
+});
+```
+
+### 03: /src/middleware.ts
+
+```ts
+//  /src/middleware.ts
+import { createI18nMiddleware } from "fumadocs-core/i18n";
+import { i18n } from "@/lib/i18n";
+export default createI18nMiddleware(i18n);
+
+console.log("中间件");
+
+export const config = {
+  // Matcher ignoring `/_next/` and `/api/`
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+```
+
+### 04:/src/app/layout.config.tsx
+
+```tsx
+// /src/app/layout.config.tsx
+import { i18n } from "@/lib/i18n";
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+
+// Make `baseOptions` a function:
+// baseOptions变为函数
+export function baseOptions(locale: string): BaseLayoutProps {
+  return {
+    i18n,
+    // different props based on `locale`
+  };
+}
+```
+
+## 路由相关文件
+
+新建目录 `/src/app/[lang]`，将`(home)目录`,`docs目录`，`根布局文件layout.tsx`移到[lang]目录下
+
+### 05：根布局文件/src/app/[lang]/layout.tsx
+
+```tsx
+import "../global.css";
+import { RootProvider } from "fumadocs-ui/provider";
+import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
+
+import type { Translations } from "fumadocs-ui/i18n";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
+
+const fontFamily = {
+  fontFamily:
+    "14px/1.5 Helvetica Neue,Helvetica,Arial,Microsoft Yahei,Hiragino Sans GB,Heiti SC,WenQuanYi Micro Hei,sans-serif",
+};
+
+// translations
+const cn: Partial<Translations> = {
+  search: "Translated Content",
+};
+
+// available languages that will be displayed on UI
+// make sure `locale` is consistent with your i18n config
+const locales = [
+  {
+    name: "English",
+    locale: "en",
+  },
+  {
+    name: "中文简体",
+    locale: "cn",
+  },
+];
+
+export default async function Layout({
+  params,
+  children,
+}: {
+  params: Promise<{ lang: string }>;
+  children: React.ReactNode;
+}) {
+  const lang = (await params).lang;
+  return (
+    <html
+      lang={lang}
+      style={lang === "cn" ? { fontFamily } : {}}
+      suppressHydrationWarning
+    >
+      <body className="flex flex-col min-h-screen">
+        <RootProvider
+          i18n={{
+            locale: lang,
+            locales,
+            translations: { cn }[lang],
+          }}
+        >
+          {children}
+        </RootProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### 06：首页布局文件/src/app/[lang]/(home)/layout.tsx
+
+```tsx
+import type { ReactNode } from "react";
+import { HomeLayout } from "fumadocs-ui/layouts/home";
+import { baseOptions } from "@/app/layout.config";
+// export default function Layout({ children }: { children: ReactNode }) {
+//   return <HomeLayout {...baseOptions}>{children}</HomeLayout>;
+// }
+export default async function Layout({
+  params,
+  children,
+}: {
+  params: Promise<{ lang: string }>;
+  children: ReactNode;
+}) {
+  const { lang } = await params;
+  return <HomeLayout {...baseOptions(lang)}>{children}</HomeLayout>;
+}
+```
+
+### 07：文档布局文件/src/app/[lang]/docs/layout.tsx
+
+```tsx
+import type { ReactNode } from "react";
+import { source } from "@/lib/source";
+import { DocsLayout } from "fumadocs-ui/layouts/docs";
+import { baseOptions } from "@/app/layout.config";
+export default async function Layout({
+  params,
+  children,
+}: {
+  params: Promise<{ lang: string }>;
+  children: ReactNode;
+}) {
+  const { lang } = await params;
+  return (
+    <DocsLayout {...baseOptions(lang)} tree={source.pageTree[lang]}>
+      {children}
+    </DocsLayout>
+  );
+}
+```
+
+### 08：文档页面文件/src/app/[lang]/docs/page.tsx
+
+```tsx
+import { source } from "@/lib/source";
+import {
+  DocsPage,
+  DocsBody,
+  DocsDescription,
+  DocsTitle,
+} from "fumadocs-ui/page";
+import { notFound } from "next/navigation";
+import { createRelativeLink } from "fumadocs-ui/mdx";
+import { getMDXComponents } from "@/mdx-components";
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ lang: string; slug?: string[] }>;
+}) {
+  const { slug, lang } = await params;
+  const page = source.getPage(slug, lang);
+  if (!page) notFound();
+
+  const MDXContent = page.data.body;
+
+  return (
+    <DocsPage toc={page.data.toc} full={page.data.full}>
+      <DocsTitle>{page.data.title}</DocsTitle>
+      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsBody>
+        <MDXContent
+          components={getMDXComponents({
+            // this allows you to link to other pages with relative file paths
+            a: createRelativeLink(source, page),
+          })}
+        />
+      </DocsBody>
+    </DocsPage>
+  );
+}
+
+export async function generateStaticParams() {
+  return source.generateParams();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string; slug?: string[] }>;
+}) {
+  const { slug, lang } = await params;
+  const page = source.getPage(slug, lang);
+  if (!page) notFound();
+
+  return {
+    title: page.data.title,
+    description: page.data.description,
+  };
+}
+```

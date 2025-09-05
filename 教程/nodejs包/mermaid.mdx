@@ -1,0 +1,29 @@
+---
+title: mermaid
+---
+
+Mermaid 的官方网站地址是：https://mermaid.js.org/intro/
+
+
+## mermaid 模板
+<Mermaid
+  chart="
+graph TD;
+subgraph AA [消费者]
+A[Mobile app];
+B[Web app];
+C[Node.js client];
+end
+subgraph BB [服务]
+E[REST API];
+F[GraphQL API];
+G[SOAP API];
+end
+Z{GraphQL API请求};
+A --> Z;
+B --> Z;
+C --> Z;
+Z --> E;
+Z --> F;
+Z --> G;"
+/>

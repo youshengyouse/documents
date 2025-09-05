@@ -1,0 +1,29 @@
+---
+title: nodejs包安装常见错误
+---
+
+##  ERR_PNPM_META_FETCH_FAIL 
+```bash
+ ERR_PNPM_META_FETCH_FAIL  GET https://registry.npmmirror.com/eslint: request to https://registry.npmmirror.com/eslint failed, reason:
+```
+### 解决方法
+#### 调整网络超时参数(error (ETIMEDOUT))
+```bash
+pnpm config set fetch-timeout 600000 # 设置超时时间为10分钟
+pnpm config set max-sockets 10       # 限制最大并发连接数
+```
+#### 重新安装
+```bash
+pnpm store prune        # 清除pnpm本地存储
+pnpm cache delete       # 清除pnpm缓存
+rm -rf node_modules      # 删除现有node_modules目录
+pnpm i --verbose                  # 重新安装依赖
+```
+#### 切换镜像源
+```bash
+# 切换到npm官方源
+pnpm config set registry https://registry.npmjs.org/
+
+# 切换到淘宝镜像源
+pnpm config set registry https://registry.npmmirror.com
+```

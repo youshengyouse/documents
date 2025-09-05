@@ -1,0 +1,65 @@
+---
+title: 第04课：Vanilla手工实现
+---
+## 文件结构如下
+```bash
+.
+├── index.html
+├── node_modules
+│   └── vite -> .pnpm/vite@7.0.4/node_modules/vite
+├── package.json
+├── pnpm-lock.yaml
+├── public
+│   ├── css
+│   │   └── main.css
+│   └── img
+│       ├── javascript.svg
+│       └── vite.svg
+└── src
+    ├── counter.js
+    └── main.js
+```
+```html filename="index.html" switcher
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js">
+        // type="module" 表示这个文件是一个模块，会被浏览器解析为ES Module
+        // main.js移到src目录
+    </script>
+  </body>
+</html>
+```
+```js filename="src/main.js" switcher
+import '../public/css/main.css'
+import javascriptLogo from '../public/img/javascript.svg'
+import viteLogo from '/img/vite.svg'
+import { setupCounter } from './counter.js'
+
+document.querySelector('#app').innerHTML = `
+  <div>
+    <a href="https://vite.dev" target="_blank">
+      <img src="${viteLogo}" class="logo" alt="Vite logo" />
+    </a>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
+      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
+    </a>
+    <h1>Hello Vite!</h1>
+    <div class="card">
+      <button id="counter" type="button"></button>
+    </div>
+    <p class="read-the-docs">
+      Click on the Vite logo to learn more
+    </p>
+  </div>
+`
+
+setupCounter(document.querySelector('#counter'))
+```

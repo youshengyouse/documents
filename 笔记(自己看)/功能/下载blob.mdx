@@ -1,0 +1,24 @@
+---
+title: 下载blob
+date: 2022-05-24 11:11:11
+---
+
+```js
+const getVideoBlob = async () => {
+  const response = await fetch(
+    "blob:https://boutiquefire.xyz/ac20aca6-3d61-4430-a194-86a361f2cd59"
+  );
+  return response.blob();
+};
+const blobUrl = URL.createObjectURL(await getVideoBlob());
+const downloadLink = document.createElement("a");
+downloadLink.href = blobUrl;
+downloadLink.download = "video.mp4";
+downloadLink.style.display = "none";
+document.body.appendChild(downloadLink);
+downloadLink.click();
+setTimeout(() => {
+  URL.revokeObjectURL(blobUrl);
+  document.body.removeChild(downloadLink);
+}, 100);
+```

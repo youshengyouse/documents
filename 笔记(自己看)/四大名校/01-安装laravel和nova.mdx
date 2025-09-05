@@ -1,0 +1,69 @@
+---
+title: 安装laravel和nova
+---
+
+## 安装 laravel 脚手架
+
+- 项目名：sidamingxiao-20250709
+
+```bash
+# 当前目录 /www2024/1_doing
+cp /www2024/0_common/php/laravel/laravel-20250709/ sidamingxiao-20250709 -r
+cd sidamingxiao-20250709
+cp .env.example .env
+composer install
+php artisan key:generate
+```
+
+## 数据库准备
+
+```bash
+mysql -u root -p
+Enter password:  # 输入密码my2024
+
+create database doing_sidamingxiao_20250709 default character set utf8mb4 collate utf8mb4_unicode_ci;
+# 创建用户，存在无须建
+# create user 'qianjin'@'localhost' identified by 'n063a9';
+# ALTER USER 'qianjin'@'localhost' IDENTIFIED BY 'good2025'; # 使用新的密码
+grant all on doing_sidamingxiao_20250709.* to qianjin@localhost;
+```
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=doing_sidamingxiao_20250709
+DB_USERNAME=qianjin
+DB_PASSWORD=good2025
+```
+
+```
+php atisan migrate
+php artisan serve
+```
+
+## 修改 composer.json 配置
+
+```bash
+
+composer config minimum-stability dev
+# 默认 "minimum-stability": "stable",
+
+composer config repositories.laravel '{"type":"path","url":"/www2024/0_common/php/laravel/**/","options":{"symlink":true}}'
+composer config repositories.yousheng '{"type":"path","url":"/www2024/0_common/php/yousheng/**","options":{"symlink":true}}'
+```
+
+## 安装 illuminate
+
+```bash
+composer update
+```
+
+## 安装 nova
+
+```bash
+composer require laravel/nova
+php artisan nova:install
+php artisan nova:user # zhangsan / 1234qwer
+php artisan migrate
+```

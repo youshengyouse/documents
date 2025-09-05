@@ -1,0 +1,40 @@
+---
+title: .gitattributes
+---
+
+## 模板
+
+用于告诉 Git 如何处理特定文件类型的属性，比如换行符转换、差异对比方式以及是否忽略某些文件等
+
+```bash
+
+# ① 换行符处理（文本文件）
+* text=auto eol=lf
+# * text=auto：对所有文件（*表示通配符）启用 Git 的自动文本检测。Git 会判断文件是文本文件还是二进制文件，文本文件会被标记为text，二进制文件则不标记，避免对二进制文件（如图片、视频）进行换行符修改。
+# eol=lf：指定文本文件的换行符在工作区（即本地文件系统中）统一使用LF（Unix/Linux/macOS 的换行符）。无论文件在提交到仓库时的换行符是LF还是CRLF（Windows 换行符），Git 都会在拉取到本地时自动转换为LF，保证跨平台开发时的换行符一致性。
+
+# ②差异对比（diff）配置
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+# diff=xxx：指定特定文件类型在使用git diff（查看文件差异）时，使用对应的语法高亮和解析规则，让差异对比更易读。
+# *.blade.php diff=html：.blade.php是 Laravel 框架的模板文件（混合 HTML 和 PHP），按 HTML 语法解析差异。
+# *.css diff=css：CSS 文件按 CSS 语法解析差异。
+# *.html diff=html：HTML 文件按 HTML 语法解析差异。
+# *.md diff=markdown：Markdown 文件按 Markdown 语法解析差异。
+# *.php diff=php：PHP 文件按 PHP 语法解析差异。
+
+
+# ③ 导出忽略（export-ignore）
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore
+
+# export-ignore：指定当使用git archive命令（将仓库打包为压缩包，用于发布版本）时，忽略这些文件 / 目录，不包含在导出的压缩包中。
+# /.github：GitHub 相关配置目录（如 Issue 模板、 workflows 等），通常不需要包含在发布包中。
+# CHANGELOG.md：变更日志文件，可能仅用于开发记录，无需随发布包分发。
+# .styleci.yml：StyleCI（代码风格检查工具）的配置文件，属于开发工具配置，不影响生产环境运行。
+```

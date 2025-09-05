@@ -1,0 +1,75 @@
+---
+title: 新建fumadocs项目方法一
+---
+
+## 新建 fumadocs 项目方法一
+
+```bash
+# 当前目录 /www2024/5_docs/fumadocs
+npm config list
+registry = "https://registry.npmmirror.com"
+# npm config set registry https://registry.npmmirror.com   # 淘宝
+# npm config set registry https://registry.npmjs.org/      # 科学上网时采用官方
+
+pnpm create fumadocs-app
+ 
+┌ Create Fumadocs App
+│
+◇ Project name
+│ 20250630
+│
+◇ Choose a template
+│ Next.js: Fumadocs MDX
+│
+◇ Use `/src` directory?
+│ Yes
+│
+◇ Add default ESLint configuration?
+│ Yes
+│
+◇ Do you want to install packages automatically? (detected as pnpm)
+│ Yes
+│
+◇ Project Generated
+│
+└ Done
+
+Open the project
+cd 20250630
+
+Run Development Server
+npm run dev | pnpm run dev | yarn dev
+
+You can now open the project and start writing documents
+```
+
+```bash
+ln -s /www2024/0_common/内容 /www2024/5_docs/fumadocs/20250630/content2025
+```
+
+修改 source.config.ts 中路径
+
+```ts
+export const docs = defineDocs({
+  dir: "./content2025/文档/docs",
+  docs: {
+    schema: frontmatterSchema,
+  },
+  meta: {
+    schema: metaSchema,
+  },
+});
+```
+
+修改
+
+```ts
+src / app / docs / layout.tsx;
+export default function Layout({ children }: { children: ReactNode }) {
+  return (
+    <DocsLayout tabMode="navbar" tree={source.pageTree} {...baseOptions}>
+      {children}
+    </DocsLayout>
+  );
+}
+```

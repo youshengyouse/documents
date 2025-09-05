@@ -1,0 +1,88 @@
+---
+title: 新增路由目录
+---
+
+## 新增路由目录
+
+下面以增加 laravel nova 为例
+
+### 1. 新增路由目录 src/app/[lang]/nova
+
+```bash
+.
+├── app
+│   ├── [lang]
+│   │   ├── (home)
+│   │   │   ├── layout.tsx
+│   │   │   └── page.tsx
+│   │   ├── docs
+│   │   │   ├── [[...slug]]
+│   │   │   │   └── page.tsx
+│   │   │   └── layout.tsx
+│   │   ├── layout.tsx
+│   │   ├── nova
+│   │   │   ├── [[...slug]]
+│   │   │   │   └── page.tsx
+│   │   │   └── layout.tsx
+│   │   └── tutorials
+│   │   ├── [[...slug]]
+│   │   │   └── page.tsx
+│   │   └── layout.tsx
+│   ├── api
+│   │   └── search
+│   │   └── route.ts
+│   ├── global.css
+│   └── layout.config.tsx
+├── components
+│   └── ui
+│   ├── logos
+│   │   ├── logo-laravel.tsx
+│   │   └── logo.tsx
+│   └── navigation-menu.tsx
+├── lib
+│   ├── i18n.ts
+│   ├── source.ts
+│   └── utils.ts
+├── mdx-components.tsx
+└── middleware.ts
+```
+
+### 2. 配置内容来源 source.config.ts
+
+```ts
+import {
+  defineConfig,
+  defineDocs,
+  frontmatterSchema,
+  metaSchema,
+} from "fumadocs-mdx/config";
+
+const createDefineDocs = (dir: string) => {
+  return defineDocs({
+    dir: dir,
+    docs: {
+      schema: frontmatterSchema,
+    },
+    meta: {
+      schema: metaSchema,
+    },
+  });
+};
+export const docs = createDefineDocs("./内容/文档");
+export const tutorials = createDefineDocs("./内容/教程");
+export const nova = createDefineDocs("./内容/教程/laravel/nova");
+
+export default defineConfig({
+  mdxOptions: {},
+});
+```
+
+### 3. 修改来源库 src/lib/source.ts
+
+### 4. 修改布局文件 src/app/[lang]/nova/layout.tsx
+
+文件结构与文档的一样，后面想办法简化
+
+### 5. 修改页面文件 src/app/[lang]/nova/[[...slug]]/page.tsx
+
+### 6. 修改导航链接

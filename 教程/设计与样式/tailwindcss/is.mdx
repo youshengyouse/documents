@@ -1,0 +1,39 @@
+---
+title: is
+---
+
+# is 伪类用法
+
+`is` 是一个伪类，用于选择具有特定类的元素。
+
+```css filename="global.css" switcher
+:is(.zhangsan, .lisi) {
+  --hero-card-background-color: rgba(255, 0, 0, 0.8);
+}
+:is(.zhaoliu) {
+  --hero-card-background-color: #1196d8b3;
+}
+:is(.zhaoliu) {
+  --hero-card-background-color: #34ee05b3;
+}
+.hero-card {
+  background-color: var(--hero-card-background-color);
+  border: 1px solid var(--card-border-color);
+  color: var(--text-color);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  height: 300px;
+  width: 200px;
+}
+```
+
+```ts filename="page.ts" switcher
+      <div className=" zhangsan">
+        <div className="hero-card">Hello</div>
+      </div>
+      <div className=" wangwu">
+        <div className="zhaoliu">
+          <div className="hero-card">Hello</div>
+        </div>
+      </div>
+```

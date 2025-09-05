@@ -1,0 +1,26 @@
+---
+title: "@changesets/cli"
+---
+
+## 安装@changesets/cli
+
+```bash
+# 当前目录 /home/tom/www2026/0_common/js/yousheng/fumadocs-my/
+pnpm  add -wD @changesets/cli
+npx changeset init
+# 生成下面目录结构
+.
+├── .changeset
+│   ├── config.json
+│   └── README.md
+```
+
+## 修改 package.json
+
+```json
+{
+  "scripts": {
+    "changeset": "changeset"
+  }
+}
+```

@@ -1,0 +1,40 @@
+---
+title: 第04课：Vanilla+TS手工实现
+---
+## 参考Vanilla+TS重新实现
+```
+├── index.html
+├── package.json
+├── public
+│   └── vite.svg 
+├── src
+│   ├── counter.ts
+│   ├── main.ts
+│   ├── style.css
+│   ├── typescript.svg
+│   └── vite-env.d.ts
+└── tsconfig.json
+```
+```html filename="index.html" switcher
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + TS</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts">
+        // 直接导入ts文件
+    </script>
+  </body>
+</html>
+```

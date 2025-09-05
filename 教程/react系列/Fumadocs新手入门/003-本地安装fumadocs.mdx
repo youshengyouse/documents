@@ -1,0 +1,47 @@
+---
+title: 本地安装fumadocs.mdx
+---
+
+## 本地安装 fumadocs
+
+```bash
+# 当前目录 ~/www2026/5_docs/fumadocs-20250721
+# 安装 ui、core、mdx 三个包
+pnpm add /home/tom/www2026/0_common/js/fumodocs-20250721/ui /home/tom/www2026/0_common/js/fumodocs-20250721/core /home/tom/www2026/0_common/js/fumodocs-20250721/mdx
+```
+
+## package.json 如下
+
+```json
+{
+  "name": "fumadocs-20250721",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --turbo",
+    "start": "next start",
+    "postinstall": "fumadocs-mdx"
+  },
+  "dependencies": {
+    "fumadocs-core": "link:/home/tom/www2026/0_common/js/fumodocs-20250721/core",
+    "fumadocs-mdx": "link:/home/tom/www2026/0_common/js/fumodocs-20250721/mdx",
+    "fumadocs-ui": "link:/home/tom/www2026/0_common/js/fumodocs-20250721/ui",
+    "next": "15.4.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "24.0.15",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "eslint": "^8",
+    "eslint-config-next": "15.4.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3"
+  }
+}
+```

@@ -1,0 +1,11 @@
+---
+title: 中间件
+---
+
+## DispatchServingNovaEvent
+
+- 定义：`\Laravel\Nova\Events\ServingNova`是一个`use Dispatchable;`类，在构造函数中注入了 `$app`和`$request`
+- 注册：
+- - 在`NovaCoreServiceProvider`的`boot()`中使用 `Route::middlewareGroup('nova:serving', [DispatchServingNovaEvent::class,BootTools::class,]);`
+- - 在 nova 配置文件中手动指定，是一个路由中间件，
+- - 在`NovaCoreServiceProvider`的`boot()`中使用 `Route::middlewareGroup('nova', config('nova.middleware', []));`

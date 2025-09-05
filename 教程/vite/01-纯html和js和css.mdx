@@ -1,0 +1,93 @@
+---
+title: 第01课：纯html和js和css
+---
+## 纯html和js和css
+新建空目录  `~/www2026/4_tutorial/vite/basic`
+```bash filename="初始化新项目" switcher
+# 当前目录：~/www2026/4_tutorial/vite/basic
+pnpm init
+```
+```json filename="package.json" switcher
+{
+  {
+  "name": "basic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.13.1"
+}
+}
+```
+```html filename="新建index.html文件" switcher
+<!--/home/tom/www2026/4_tutorial/vite/basic/index.html vite dev会渲染这个文件 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    首页
+</body>
+<script>
+// 这里的src="./main.js"，写成 src="main.js"也可以
+// type="module" 如果不写，浏览器会认为是普通的js文件，那么在 main.js 中写的 import 语句就会报错：main.js:1 Uncaught SyntaxError: Cannot use import statement outside a module (at main.js:1:1)不会生效
+</script>
+<script type="module" src="./main.js"></script>
+</html>
+```
+```js filename="main.js" switcher
+import city from "./city.js"; 
+// 这里要么是相对路径要么是绝对路径，不能写"city.js"
+// 扩展名 .js也不能省略
+console.log(city);
+console.log("Hello World");
+```
+```js filename="city.js" switcher
+export default {
+    city:"长沙"
+}
+```
+```html filename="index.html中main.js另一种写法" switcher
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    首页
+</body>
+<script type="module">
+    import "./main.js" // 这里不能写成 import "main.js",.js不能省略
+    // 如果将main.js改为 main.ts,会报错 Failed to load module script: Expected a JavaScript-or-Wasm module script but the server responded with a MIME type of "video/mp2t". Strict MIME type checking is enforced for module scripts per HTML spec
+</script>
+</html>
+```
+
+## script>标签的type属性
+- text/javascript（默认值）
+- module（即type="module"）：这个属性值是 ES6 模块的专用标识，它能让 JavaScript 文件通过import和export语句实现模块化加载。和普通脚本比起来，它有这些特点：
+- - 脚本会以严格模式（'use strict'）运行。
+- - 可以使用import和export语句。
+- - 默认采用延迟加载（defer），也就是会等到 DOM 解析完成后再执行。
+- - 模块内部的变量和函数具有局部作用域，不会污染全局作用域。
+- text/esm(等同module)
+- importmap
+- module-shim
+- text/babel 或 application/javascript
+
+## 总结
+- 建议设置 type="module"，现在浏览器都支持。
+- 建议使用 import 语句，而不是 script 标签的 src 属性。
+- package.json 中的 type 字段如果设置为 module。或文件名为.mjs
+- import 默认不支持"main.js"这种写法，相对路径或绝对路径，扩展名.js不能省略(安装vite后可以)
+- 默认浏览器不支持.ts

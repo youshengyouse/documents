@@ -1,0 +1,27 @@
+---
+title: .styleci.yml
+---
+
+## 模板
+
+这个配置文件是针对 Laravel 项目的 StyleCI 代码风格检查工具配置。StyleCI 是一个自动化代码格式化工具，用于保持代码风格的一致性。下面是对配置内容的详细解释：
+
+```bash
+# PHP 配置
+php:
+  preset: laravel
+  disabled:
+    - no_unused_imports
+  finder:
+    not-name:
+      - index.php
+
+# preset: laravel：使用 Laravel 预设的代码风格规则。Laravel 有一套特定的代码风格标准，这个预设会自动应用这些标准。
+# disabled: - no_unused_imports：禁用 no_unused_imports 规则。这意味着 StyleCI 不会检查和移除未使用的 PHP 导入语句。在开发过程中，有时会暂时保留未使用的导入，因此禁用这个规则可以避免不必要的警告。
+# finder:not-name: - index.php：在代码检查中排除 index.php 文件。通常，Laravel 项目的 public/index.php 是框架的入口文件，一般不需要进行风格检查。
+
+js: true
+# js: true：启用 JavaScript 代码的风格检查。StyleCI 会使用预设的规则来检查和格式化 JavaScript 代码。
+css: true
+# css: true：启用 CSS 代码的风格检查。StyleCI 会检查 CSS 文件的格式是否符合预设的风格规则。
+```
